@@ -2521,10 +2521,36 @@ Main.prototype.helpStage=function(id){
  if(id==='vo'){
   const dx=a.x+(L.x<a.x?-24:24),dy=a.y-30;
   return{lead:go=>{G.staging=true;let ok=false;const fin=()=>{if(ok)return;ok=true;G.staging=false;
-    const d=keep(G.add.ellipse(dx,dy,22,10,0xf1e3c2).setStrokeStyle(1,0xb89a6a).setDepth(a.y+30));
-    const sh=keep(G.add.ellipse(dx,dy+4,24,4,0x000000,.18).setDepth(a.y+29));
-    G.tweens.add({targets:d,scaleY:.72,scaleX:1.18,duration:340,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
-    evs.push(G.time.addEvent({delay:380,loop:true,callback:()=>{const p=keep(G.add.rectangle(dx+Math.random()*16-8,dy-4,2,2,0xffffff,.9).setDepth(a.y+31));G.tweens.add({targets:p,y:dy-20,alpha:0,duration:800,onComplete:()=>p.destroy()})}}));
+    /* de perto: a mesa da cozinha, as mãos da vó e da Lia sovando a massa */
+    const D=1600,pw=176,ph=118,px=W/2-pw/2,py=H-ph-26,cx=px+pw/2,cy=py+ph/2+14;
+    const dim=keep(G.add.rectangle(0,0,W,H,0x0b0704,.5).setOrigin(0).setScrollFactor(0).setDepth(D-1));
+    const fr=keep(G.add.graphics().setScrollFactor(0).setDepth(D));
+    fr.fillStyle(0x2b1a10,1);fr.fillRect(px-4,py-4,pw+8,ph+8);
+    fr.fillStyle(0x9a6a3e,1);fr.fillRect(px,py,pw,ph);
+    fr.fillStyle(0x86592f,1);for(let yy=py+9;yy<py+ph;yy+=14)fr.fillRect(px,yy,pw,2);
+    fr.fillStyle(0xb07c4a,1);for(let k=0;k<7;k++)fr.fillRect(px+8+k*25,py+3+(k%3)*30,10,1);
+    fr.fillStyle(0xf4ecd6,.8);[[-46,10,26,9],[38,-18,22,7],[30,26,30,8],[-30,-26,18,6]].forEach(r=>fr.fillEllipse(cx+r[0],cy+r[1],r[2],r[3]));
+    fr.fillStyle(0xf4ecd6,1);for(let k=0;k<40;k++)fr.fillRect(px+10+Math.random()*(pw-20),py+8+Math.random()*(ph-16),1,1);
+    const lab=keep(G.T(px+6,py+4,'De perto',{size:9,bold:true,color:'#f4ecd6',shadow:'#2b1a10'}).setScrollFactor(0).setDepth(D+4));
+    const sh=keep(G.add.ellipse(cx,cy+16,92,16,0x000000,.22).setScrollFactor(0).setDepth(D+1));
+    const d=keep(G.add.ellipse(cx,cy,86,46,0xf1e3c2).setStrokeStyle(2,0xc9ad7a).setScrollFactor(0).setDepth(D+2));
+    const hl=keep(G.add.ellipse(cx-14,cy-9,30,9,0xfff8e6,.8).setScrollFactor(0).setDepth(D+2));
+    const hand=(x,y,skin,sleeve,flip)=>{const g=G.add.graphics().setScrollFactor(0).setDepth(D+3);
+      g.fillStyle(sleeve,1);g.fillRect(-10,14,20,60);g.fillStyle(0x000000,.12);g.fillRect(-10,14,20,3);
+      g.fillStyle(skin,1);g.fillRect(-8,6,16,10);g.fillRoundedRect(-11,-8,22,17,5);
+      for(let k=0;k<4;k++)g.fillRoundedRect(-11+k*5.6,-17,5,11,2);
+      g.fillRoundedRect(flip?-17:10,-3,8,6,3);
+      g.fillStyle(0x000000,.18);for(let k=1;k<4;k++)g.fillRect(-11+k*5.6-.6,-14,1,7);
+      g.fillStyle(0xffffff,.12);g.fillRect(-9,-6,6,3);
+      g.x=x;g.y=y;return keep(g)};
+    const mk=G.make.graphics({add:false});mk.fillRect(px*1,py,pw,ph);
+    const hv=hand(cx-20,cy+12,0x5a3520,0x3d5f9a,false),hlia=hand(cx+20,cy+12,0x8a5636,0xe0723a,true);
+    [hv,hlia].forEach(h=>h.setMask(mk.createGeometryMask()));
+    G.tweens.add({targets:hv,y:cy+2,duration:420,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    G.tweens.add({targets:hlia,y:cy+2,duration:420,yoyo:true,repeat:-1,ease:'Sine.easeInOut',delay:420});
+    G.tweens.add({targets:d,scaleY:.8,scaleX:1.12,duration:420,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    G.tweens.add({targets:hl,scaleX:1.15,duration:420,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    evs.push(G.time.addEvent({delay:300,loop:true,callback:()=>{const p=keep(G.add.rectangle(cx+Math.random()*80-40,cy-6,2,2,0xffffff,.9).setScrollFactor(0).setDepth(D+4));G.tweens.add({targets:p,y:p.y-22-Math.random()*10,x:p.x+Math.random()*10-5,alpha:0,duration:900,onComplete:()=>p.destroy()})}}));
     a.setMode('talk');go()};
     if(Math.abs(L.x-a.x)>60){walk(L,a.x+(L.x<a.x?-34:34),L.y,()=>G.time.delayedCall(200,fin));G.time.delayedCall(4500,fin)}else fin()},
    end:()=>{unstage();a.setMode('idle');clean()}};
