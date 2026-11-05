@@ -1011,14 +1011,14 @@ Object.assign(Main.prototype,{
   const c=a.cust,o=[];const id=a.id;
   if(c&&c.state==='waiting')o.push({t:'Anotar o pedido ('+INAME[c.item]+')',fn:()=>this.noteOrder(c)});
   if(c&&c.state==='noted'){const have=S.tray.includes(c.item);o.push({t:'Entregar: '+INAME[c.item],off:!have,why:'Falta pegar '+INAME[c.item]+' atrás do balcão',fn:()=>this.deliver(c)})}
-  if(a.fixed){this.say([[id,pickB(BARKS.fig)]]);return}
+  if(a.fixed){this.say([[id,barkLine('fig',this.cur)||'Bom dia, Lia.']]);return}
   if(WHO[id]&&WHO[id].n&&!a.fig){
    const lis=(LISTEN[id]||[]).some(e=>!S.listened[e.id]&&tr(id)>=e.m);
    o.push({t:'Ouvir',fn:()=>this.verbOuvir(id)});
    o.push({t:'Perguntar',fn:()=>this.verbPerguntar(id)});
    if(HELP[id])o.push({t:S.helped[id]?'Ajudar (já ajudou)':'Ajudar: '+HELP[id].lab,off:!!S.helped[id],why:'Hoje você já ajudou.',fn:()=>this.verbAjudar(id)});
   }
-  if(!o.length){this.bark(a,pickB(BARKS.fig),2.4);return}
+  if(!o.length){this.bark(a,barkLine('fig',this.cur)||'Bom dia.',2.4);return}
   const wn=WHO[id]&&WHO[id].n?WHO[id].n:'Cliente';
   this.openMenu(wn,o,a.x-(this.cam.lsx||0),a.y-a.height()-12);
  },
@@ -1261,7 +1261,7 @@ Object.assign(Main.prototype,{
   const w=WHO[a.id];return w&&w.n?w.n:'Conversar'},
  actorMenu(a){
   const c=a.cust,id=a.id;
-  if(a.fixed){const h=this.hs.find(x=>x.id==='dom');if(S.q.c==='on'&&!S.q.cDone&&h){this.activate(h);return}this.bark(a,pick(FIXED_LINES[id]||['…']),2.8);return}
+  if(a.fixed){const h=this.hs.find(x=>x.id==='dom');if(S.q.c==='on'&&!S.q.cDone&&h){this.activate(h);return}this.bark(a,noRepeat(id,FIXED_LINES[id]||[])||pick(['Hum?','Oi, Lia.']),2.8);return}
   if(c&&c.state==='waiting'){this.noteOrder(c);return}
   if(c&&c.state==='noted'){this.deliver(c);return}
   const o=[];
@@ -1272,7 +1272,7 @@ Object.assign(Main.prototype,{
     const ok=H.need==='rua'?rua:H.need==='dentro'?inn:H.need==='bolo'?S.tray.some(x=>x==='bolo'||x==='pao'):true;
     if(ok)o.push({t:'Ajudar: '+H.lab,fn:()=>this.verbAjudar(id)})}
   }
-  if(!o.length){this.bark(a,a.fig?pickB(BARKS.fig):pickB(BARKS[id]||BARKS.fig),2.8);return}
+  if(!o.length){this.bark(a,barkLine(a.fig?'fig':id,this.cur)||pick(['Oi, Lia.','Hum?','Agora não, menina.']),2.8);return}
   this.openMenu(WHO[id]&&WHO[id].n?WHO[id].n:'Conversar',o.concat([{t:'Deixa pra lá',fn:()=>{}}]),a.x-(this.cam.lsx||0),a.y-a.height()-12);
  },
  noteOrder(c){
@@ -1787,8 +1787,8 @@ Object.assign(Main.prototype,{
   if(S.baking>0){S.baking-=dt;if(S.baking<=0){S.baking=0;S.stock[S.bakeK]+=S.bakeK==='pao'?8:3;this.updStockArt();this.toast((S.bakeK==='pao'?'Pão':'Bolo')+' saiu do forno');SFX.ding()}}
   if(S.cafeT>0){S.cafeT-=dt;if(S.cafeT<=0){S.cafeT=0;S.stock.cafe=4;this.toast('Café coado');SFX.ding()}}
   // bandeja some se o cliente foi embora? não. vó fala sozinha de vez em quando
-  this.vbT=(this.vbT||12)-dt;if(this.vbT<=0&&this.cur==='b0'){this.vbT=rnd(18,32);this.bark(this.A.vo,pickB(BARKS.vo),3)}
-  this.nb=(this.nb||14)-dt;if(this.nb<=0&&this.cur==='rua'){this.nb=rnd(9,16);const c=[this.A.ze,this.A.zefa,this.A.nego].filter(a=>a.spr);const w=[...c,...['raimundo','dandara','davi','lucia'].map(i=>this.A[i]).filter(a=>a.spr&&a.view==='rua')];if(w.length){const a=pick(w);this.bark(a,a.fixed?pick(FIXED_LINES[a.id]):pickB(BARKS[a.id]||BARKS.fig),3)}}
+  this.vbT=(this.vbT||12)-dt;if(this.vbT<=0&&this.cur==='b0'){this.vbT=rnd(30,55);{const t=barkLine('vo',this.cur);if(t)this.bark(this.A.vo,t,3)}}
+  this.nb=(this.nb||14)-dt;if(this.nb<=0&&this.cur==='rua'){this.nb=rnd(16,28);const c=[this.A.ze,this.A.zefa,this.A.nego].filter(a=>a.spr);const w=[...c,...['raimundo','dandara','davi','lucia'].map(i=>this.A[i]).filter(a=>a.spr&&a.view==='rua')];if(w.length){const a=pick(w);const t=a.fixed?noRepeat(a.id,FIXED_LINES[a.id]):barkLine(a.fig?'fig':a.id,this.cur);if(t)this.bark(a,t,3)}}
  },
  ambient(){
   if(this.cur!=='rua'||this.ambT>0)return;this.ambT=1;const k=pick(FIGK);const id='f'+Math.floor(Math.random()*1e6);
@@ -3412,4 +3412,136 @@ Main.prototype.updHover=function(){
  return _updHover.call(this);
 };
 })();
+</script>
+<script>
+/* ===== v20: falas soltas sem repetição e com contexto; ações de "ajudar" encenadas na tela ===== */
+/* [texto, onde ('d' = dentro, 'r' = rua, null = qualquer lugar), hora inicial, hora final] */
+const BK={
+ raimundo:[
+  ['Esse pão tem cheiro de domingo.','d',null,10],['Fiado até sexta, e sexta eu pago.','d'],['Aurea, bota mais um café que o dia hoje é comprido.','d'],
+  ['Esse rádio só dá notícia ruim.','d'],['Quem fecha a porta cedo perde a conversa.','d'],
+  ['Bom dia, vizinha!','r',null,11],['Boa tarde!','r',12,18],['A ladeira cansa mais a cada ano.','r'],['Olha essa calha. Um dia ela cai.','r'],
+  ['Essa porta já foi azul de verdade.','r'],['Minha mãe vendia acarajé bem aqui.','r'],['Daqui eu vejo a rua inteira acordar.','r',null,10],
+  ['O moço da prancheta passou de novo.','r'],['Vou ali e volto. Ou não volto, que a ladeira não deixa.','r']],
+ dandara:[
+  ['A minha mãe mandou lembranças.'],['Você viu quem passou de colete?','r'],['A rua inteira sabe e ninguém fala.'],
+  ['Quem não aparece na reunião vira assunto.'],['Terça é dia de lista.'],['Tô indo levar o remédio da minha mãe.',null,null,12],
+  ['Esse papel na porta do Seu Raimundo não me desce.','r'],['Ata se escreve no dia, senão a gente esquece.'],
+  ['O largo hoje tá cheio de gente de fora.','r',12,18],['Me guarda um pão pra amanhã, Lia?','d']],
+ davi:[
+  ['Hoje tem roda!',null,null,17],['Um dois três, um dois três.'],['Tambor afinado, rua afinada.'],['Quem passa, para. Quem para, fica.'],
+  ['Se faltar um, a roda desafina.'],['O largo hoje está bonito de ouvir.','r'],['Meu couro tá frouxo, choveu ontem.'],
+  ['Meu pai tocava nessa mesma esquina.','r'],['Me chamaram pra tocar num palco. Palco, rapaz.'],['Um café pra acordar a mão, Dona Aurea.','d',null,11]],
+ vo:[
+  ['Fica de olho no forno, Lia.','d'],['Cuidado, tá quente.','d'],['Pão bom não tem pressa.','d'],['Anota na caderneta, que eu não esqueço.','d'],
+  ['Quem chega cedo leva o primeiro.','d',null,9],['Hoje a massa subiu bonita.','d',null,11],['Lia, vê se o café ainda tá quente.','d'],
+  ['Esse relógio adianta, não confia nele.','d'],['Já varreu a calçada?','d',null,10],['O Raimundo ainda não passou hoje?','d',null,8],
+  ['Fecha a janela de trás que vai chover.','d',13,18],['Minha mãe dizia: balcão é lugar de escutar.','d']],
+ lucia:[
+  ['Mais três fachadas.'],['Por favor, não encoste na parede.','r'],['Altura confirmada.','r'],['Anotado: reboco comprometido.','r'],
+  ['Mais uma medição e eu saio.'],['Sobrado de dois pavimentos. Anotado.','r'],['Alguém sabe quantos moram aqui?','r'],['Esse sol não ajuda a medir.','r',10,16],
+  ['Um café, por favor. Sem açúcar.','d']],
+ fig:[
+  ['Que cheiro bom!','d',null,11],['Bom dia!',null,null,11],['Boa tarde!',null,12,18],['Hoje esfriou.',null,null,10],['Tem pão quente?','d'],
+  ['Deus lhe pague.','d'],['Passei só pra dar bom dia.',null,null,11],['Vai chover, olha o céu.','r'],['Tá vendo o movimento hoje?','r'],
+  ['O ônibus atrasou de novo.',null,null,10],['Já soube do papel nas portas?'],['Tô com pressa, minha filha.','d'],['Que calor!',null,12,17],
+  ['Me vê dois pães e um café.','d'],['Esse largo já foi mais cheio.','r']]
+};
+const __BU={};
+function noRepeat(key,arr){
+ if(!arr||!arr.length)return null;const day=(typeof S!=='undefined'&&S.day)||1,k=key+'@'+day;
+ const U=(__BU[k]=__BU[k]||new Set());const free=arr.filter(t=>!U.has(t));if(!free.length)return null;
+ const t=free[Math.floor(Math.random()*free.length)];U.add(t);return typeof tx==='function'?tx(t):t;
+}
+function barkLine(id,place){
+ const h=hh(),V=VIEW[place],where=V&&V.room?'d':'r';
+ const pool=(BK[id]||BK.fig).filter(([t,w,a,b])=>(!w||w===where)&&(a==null||h>=a)&&(b==null||h<b)).map(p=>p[0]);
+ return noRepeat(id+'/'+where,pool);
+}
+
+/* ---------- ações de ajudar, encenadas ---------- */
+Main.prototype.helpStage=function(id){
+ const G=this,a=this.A[id],L=this.A.lia;if(!a||!a.spr||a.view!==this.cur)return null;
+ a.staged=true;a.path=[];const unstage=()=>{a.staged=false};G.time.delayedCall(60000,unstage);
+ const objs=[],evs=[];const keep=o=>{objs.push(o);return o};
+ const clean=()=>{evs.forEach(e=>e.remove&&e.remove());objs.forEach(o=>o&&o.destroy&&o.destroy())};
+ const V=VIEW[this.cur];const walk=(act,x,y,cb)=>{const q=V.walk?V.walk(x,y):{x,y};act.walkTo(q.x,q.y,cb)};
+ const lead=(moves,then)=>{let n=moves.length,done=false;G.staging=true;const fin=()=>{if(done)return;done=true;G.staging=false;then()};
+  moves.forEach(([act,x,y])=>walk(act,x,y,()=>{if(--n<=0)G.time.delayedCall(250,fin)}));G.time.delayedCall(4500,fin)};
+ const pop=(txt,x,y,col)=>{const t=keep(G.T(x,y,txt,{size:10,bold:true,color:col||OUT,ox:.5}));t.setDepth(900);G.tweens.add({targets:t,y:y-14,alpha:0,duration:700,onComplete:()=>t.destroy()})};
+ if(id==='raimundo'){
+  const by=a.y,lx=Math.round(a.x+26*(a.dir||1));
+  return{lead:go=>lead([[a,lx,by],[L,lx-16,by+3]],()=>{
+    const g=keep(G.add.graphics().setDepth(by+5));
+    g.fillStyle(0x6e4527,1);g.fillRect(lx-9,by-84,3,84);g.fillRect(lx+6,by-84,3,84);
+    for(let y=by-6;y>by-84;y-=10){g.fillStyle(0x8a5a33,1);g.fillRect(lx-7,y,14,2)}
+    const c=keep(G.add.graphics().setDepth(by-90));c.fillStyle(0x8a8f95,1);c.fillRect(lx-34,by-96,68,5);c.fillStyle(0x5f646a,1);c.fillRect(lx-34,by-92,68,1);
+    L.dir=1;L.setMode('fix');a.noShadow=true;a.depthBias=40;
+    G.tweens.add({targets:a,x:lx,y:by-42,duration:900,ease:'Sine.easeInOut'});
+    evs.push(G.time.addEvent({delay:280,loop:true,callback:()=>{if(G.helpFixed)return;const d=keep(G.add.rectangle(lx+18+Math.random()*10,by-90,1,3,0x9cc6dc).setDepth(by+6));G.tweens.add({targets:d,y:by-4,duration:700,onComplete:()=>d.destroy()})}}));
+    evs.push(G.time.addEvent({delay:900,loop:true,callback:()=>{pop('tok',lx+6,by-100);SFX.blip&&SFX.blip(3)}}));
+    G.helpFixed=false;go()}),
+   end:()=>{unstage();G.helpFixed=true;G.tweens.add({targets:a,y:by,duration:700,ease:'Sine.easeInOut',onComplete:()=>{a.noShadow=false;a.depthBias=0;clean()}});L.setMode('idle')}};
+ }
+ if(id==='lucia'){
+  return{lead:go=>lead([[L,a.x-70,a.y+2]],()=>{
+    a.setMode('fix');if(a.spr.texture.has&&a.spr.texture.has('lucia/extra_olhando_fachada'))a.spr.setFrame('lucia/extra_olhando_fachada');L.setMode('fix');
+    const g=keep(G.add.graphics().setDepth(Math.max(a.y,L.y)+2));
+    evs.push(G.time.addEvent({delay:60,loop:true,callback:()=>{g.clear();const y1=L.y-30,y2=a.y-34;g.lineStyle(2,0xf2c14e,1);g.lineBetween(L.x+6,y1,a.x-6,y2);g.fillStyle(0x3b1f0e,1);for(let i=1;i<8;i++){const t=i/8;g.fillRect(Math.round(L.x+6+(a.x-L.x-12)*t),Math.round(y1+(y2-y1)*t)-1,1,2)}g.fillStyle(0xe8b52e,1);g.fillRect(L.x+3,y1-3,6,6)}}));
+    evs.push(G.time.addEvent({delay:2600,loop:true,callback:()=>pop(pick(['4,20 m','3,85 m','6,10 m','2,95 m']),a.x,a.y-a.height()-10,'#7a3b17')}));
+    go()}),
+   end:()=>{unstage();a.setMode('idle');L.setMode('idle');clean()}};
+ }
+ if(id==='davi'){
+  return{lead:go=>lead([[L,a.x+(L.x<a.x?-26:26),a.y+2]],()=>{
+    a.setMode('fix');if(a.spr.texture.has&&a.spr.texture.has('davi/extra_afinando'))a.spr.setFrame('davi/extra_afinando');L.setMode('fix');
+    evs.push(G.time.addEvent({delay:700,loop:true,callback:()=>{pop(pick(['tum','tom','♪']),a.x+(Math.random()*14-7),a.y-a.height()+4,'#7a3b17');SFX.blip&&SFX.blip(1)}}));
+    go()}),
+   end:()=>{unstage();a.setMode('idle');L.setMode('idle');clean()}};
+ }
+ if(id==='vo'){
+  const dx=a.x+(L.x<a.x?-24:24),dy=a.y-30;
+  return{lead:go=>{G.staging=true;let ok=false;const fin=()=>{if(ok)return;ok=true;G.staging=false;
+    const d=keep(G.add.ellipse(dx,dy,22,10,0xf1e3c2).setStrokeStyle(1,0xb89a6a).setDepth(a.y+30));
+    const sh=keep(G.add.ellipse(dx,dy+4,24,4,0x000000,.18).setDepth(a.y+29));
+    G.tweens.add({targets:d,scaleY:.72,scaleX:1.18,duration:340,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    evs.push(G.time.addEvent({delay:380,loop:true,callback:()=>{const p=keep(G.add.rectangle(dx+Math.random()*16-8,dy-4,2,2,0xffffff,.9).setDepth(a.y+31));G.tweens.add({targets:p,y:dy-20,alpha:0,duration:800,onComplete:()=>p.destroy()})}}));
+    a.setMode('talk');go()};
+    if(Math.abs(L.x-a.x)>60){walk(L,a.x+(L.x<a.x?-34:34),L.y,()=>G.time.delayedCall(200,fin));G.time.delayedCall(4500,fin)}else fin()},
+   end:()=>{unstage();a.setMode('idle');clean()}};
+ }
+ if(id==='dandara'){
+  const ex=a.x+(a.x>V.w/2?90:-90);
+  return{lead:go=>lead([[a,ex,a.y],[L,ex+(ex>a.x?-14:14),a.y+2]],()=>{
+    const vis=[a,L];G.tweens.add({targets:vis.map(v=>v.spr).filter(Boolean),alpha:0,duration:500});
+    const ov=keep(G.add.rectangle(0,0,W,H,0x0b0704,0).setOrigin(0).setScrollFactor(0).setDepth(1500));
+    const win=keep(G.add.graphics().setScrollFactor(0).setDepth(1501).setAlpha(0));
+    const wy=(G.cur==='rua'||G.cur==='esq'||G.cur==='sob')?150:40;win.fillStyle(0x3b2414,1);win.fillRect(W/2-34,wy-4,68,58);win.fillStyle(0xf2c14e,1);win.fillRect(W/2-30,wy,60,50);win.fillStyle(0x6a4428,1);win.fillRect(W/2-1,wy,2,50);win.fillRect(W/2-30,wy+24,60,2);
+    win.fillStyle(0x3b2414,.8);win.fillRect(W/2-22,wy+32,16,18);win.fillRect(W/2+8,wy+36,12,14);
+    G.tweens.add({targets:ov,fillAlpha:.82,duration:600});G.tweens.add({targets:win,alpha:1,duration:700,delay:300});
+    G.time.delayedCall(700,go)}),
+   end:()=>{unstage();const objsNow=objs.slice();G.tweens.add({targets:objsNow.filter(o=>o.fillAlpha!==undefined||o.alpha!==undefined),alpha:0,duration:500,onComplete:clean});
+    [a,L].forEach(v=>{if(v.spr)G.tweens.add({targets:v.spr,alpha:1,duration:500})})}};
+ }
+ return null;
+};
+
+/* durante a cena: o vizinho não segue a agenda e cliques não interrompem */
+(function(){
+ const _sync=Main.prototype.syncNPC;
+ if(_sync)Main.prototype.syncNPC=function(id,force){const a=this.A&&this.A[id];if(a&&a.staged)return;return _sync.apply(this,arguments)};
+ const _click=Main.prototype.onClick;
+ if(_click)Main.prototype.onClick=function(p){if(this.staging)return;return _click.apply(this,arguments)};
+})();
+Main.prototype.verbAjudar=function(id){
+ const H=HELP[id];
+ if(H.need==='rua'&&this.cur!=='rua'&&this.cur!=='esq'){this.toast('Isso só dá lá fora, na rua');return}
+ if(H.need==='dentro'&&!VIEW[this.cur].room){this.toast('Isso só dá aqui dentro');return}
+ if(H.need==='bolo'){const i=S.tray.findIndex(x=>x==='bolo'||x==='pao');if(i<0){this.toast('Precisa de um bolo ou um pão na bandeja');return}S.tray.splice(i,1)}
+ S.helped[id]=1;
+ let st=null;try{st=this.helpStage(id)}catch(e){st=null}
+ const go=()=>{this.say(H.L,()=>{try{st&&st.end&&st.end()}catch(e){}addTr(id,1);S.min+=30;if(id==='vo')F.sovou=true});
+  if(id==='vo'&&this.dlg&&VIEW[this.cur].room){this.dlg.c.y=-142;this.dlg.ch.y=-142}};
+ if(st&&st.lead)st.lead(go);else go();
+};
 </script></body></html>
