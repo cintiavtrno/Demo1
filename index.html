@@ -2483,7 +2483,7 @@ Main.prototype.helpStage=function(id){
  const G=this,a=this.A[id],L=this.A.lia;if(!a||!a.spr||a.view!==this.cur)return null;
  a.staged=true;a.path=[];const unstage=()=>{a.staged=false};G.time.delayedCall(60000,unstage);
  const objs=[],evs=[];const keep=o=>{objs.push(o);return o};
- const clean=()=>{evs.forEach(e=>e.remove&&e.remove());objs.forEach(o=>o&&o.destroy&&o.destroy())};
+ const clean=()=>{evs.forEach(e=>e.remove&&e.remove());objs.forEach(o=>o&&o.destroy&&o.destroy())};G._stClean=G._stClean||[];G._stClean.push(()=>{clean();unstage();if(a.depthBias){a.depthBias=0;a.noShadow=false}});
  const V=VIEW[this.cur];const walk=(act,x,y,cb)=>{const q=V.walk?V.walk(x,y):{x,y};act.walkTo(q.x,q.y,cb)};
  const lead=(moves,then)=>{let n=moves.length,done=false;G.staging=true;const fin=()=>{if(done)return;done=true;G.staging=false;then()};
   moves.forEach(([act,x,y])=>walk(act,x,y,()=>{if(--n<=0)G.time.delayedCall(250,fin)}));G.time.delayedCall(4500,fin)};
@@ -2500,7 +2500,7 @@ Main.prototype.helpStage=function(id){
     evs.push(G.time.addEvent({delay:280,loop:true,callback:()=>{if(G.helpFixed)return;const d=keep(G.add.rectangle(lx+18+Math.random()*10,by-90,1,3,0x9cc6dc).setDepth(by+6));G.tweens.add({targets:d,y:by-4,duration:700,onComplete:()=>d.destroy()})}}));
     evs.push(G.time.addEvent({delay:900,loop:true,callback:()=>{pop('tok',lx+6,by-100);SFX.blip&&SFX.blip(3)}}));
     G.helpFixed=false;go()}),
-   end:()=>{unstage();G.helpFixed=true;G.tweens.add({targets:a,y:by,duration:700,ease:'Sine.easeInOut',onComplete:()=>{a.noShadow=false;a.depthBias=0;clean()}});L.setMode('idle')}};
+   end:()=>{unstage();G.helpFixed=true;G.tweens.add({targets:a,y:by,duration:700,ease:'Sine.easeInOut',onComplete:()=>{a.noShadow=false;a.depthBias=0}});clean();L.setMode('idle')}};
  }
  if(id==='lucia'){
   return{lead:go=>lead([[L,a.x-70,a.y+2]],()=>{
@@ -2892,6 +2892,33 @@ Main.prototype.observe=function(o){const r=_obs.apply(this,arguments);
  const k=o&&o.id;if(k&&SABER[k]&&!SB()[k]){SB()[k]=true;S.newClue=true;setTimeout(()=>{try{G.toast('Novo saber no caderno: '+SABER[k].t)}catch(e){}},1600)}
  return r};
 window.__SABER=SABER;
+})();
+</script>
+<script>
+/* v23: cena some ao trocar de lugar; quem fala entra em cena */
+(function(){
+const _gv=Main.prototype.goView;
+Main.prototype.goView=function(){
+ if(this._stClean&&this._stClean.length){const c=this._stClean;this._stClean=[];c.forEach(f=>{try{f()}catch(e){}});this.staging=false;
+  const L=this.A&&this.A.lia;if(L&&L.mode==='fix')L.setMode('idle')}
+ return _gv.apply(this,arguments)};
+const CAST=['raimundo','dandara','davi','lucia'];
+const _say=Main.prototype.say;
+Main.prototype.say=function(lines,done){
+ const L=this.A&&this.A.lia;
+ if(lines&&lines.length&&L&&S.started&&!this.title){
+  const who=[...new Set(lines.map(it=>it&&it[0]).filter(id=>CAST.includes(id)))];
+  const V=VIEW[this.cur],brought=[];let n=0;
+  who.forEach(id=>{const a=this.A[id];if(!a||a.view===this.cur||a.staged||(a.cust&&a.cust.state!=='gone'))return;
+   const side=(n%2?-1:1)*(L.x>(V.w||640)-120?-1:1),off=48+Math.floor(n/2)*30;n++;
+   let x=clamp(L.x+side*off,30,(V.w||640)-30),y=L.y+(n%2?2:-2);
+   if(V.walk){const q=V.walk(x,y);x=q.x;y=q.y}
+   a.path=[];a.view=this.cur;a.dropSprite();a.mode='idle';a.x=x;a.y=y;a.dir=x<L.x?1:-1;a.makeSprite();
+   if(a.spr){a.spr.setAlpha(0);this.tweens.add({targets:a.spr,alpha:1,duration:250})}
+   a.staged=true;brought.push(a)});
+  if(brought.length){const d0=done;done=()=>{brought.forEach(a=>{a.staged=false});d0&&d0()}}
+ }
+ return _say.call(this,lines,done)};
 })();
 </script>
 </body></html>
