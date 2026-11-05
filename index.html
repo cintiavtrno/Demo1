@@ -1165,18 +1165,12 @@ Object.assign(Main.prototype,{
   this.endOn=true;S.modal++;this.setHud(false);
   const c=this.add.container(0,0).setScrollFactor(0).setDepth(3000);this.endC=c;
   c.add(this.add.rectangle(0,0,W,H,0x1b0f06,.9).setOrigin(0));
-  c.add(this.add.nineslice(40,12,'ui','ui/slice9_12x12',560,246,4,4,4,4).setOrigin(0).setTint(0xf0e2bd));
-  c.add(this.T(W/2,22,'Caixa do dia · Salvador, 1991',{size:14,bold:true,ox:.5}));
+  c.add(this.add.nineslice(40,82,'ui','ui/slice9_12x12',560,176,4,4,4,4).setOrigin(0).setTint(0xf0e2bd));
+  c.add(this.T(W/2,94,'Caixa do dia · Salvador, 1991',{size:14,bold:true,ox:.5}));
   const rows=[['Vendas no caixa',brl(S.money)],['Fiado anotado na caderneta',brl(S.fiado)],['Gente do bairro atendida',String(S.served)],['A vó atendeu enquanto você estava fora',String(S.voServed)],['Desistiram de esperar',String(S.lost)]];
-  rows.forEach((r,i)=>{c.add(this.T(66,38+i*14,r[0],{size:11}));c.add(this.T(574,38+i*14,r[1],{size:11,ox:1,bold:true}))});
-  c.add(this.T(W/2,108,'O fiado não entra no caixa, mas é o que segura a rua.',{size:10,ox:.5,color:'#6a4a2a'}));
-  c.add(this.T(66,122,'Frentes do dia',{size:11,bold:true}));
-  const ks=Object.keys(THREADS);
-  ks.forEach((k,i)=>{const T=THREADS[k],ids=Object.keys(CLUES).filter(x=>CLUES[x][0]===k),fd=ids.filter(has),col=i%2,row=Math.floor(i/2),x=66+col*270,y=138+row*32;
-   c.add(this.add.rectangle(x,y+2,8,8,Phaser.Display.Color.HexStringToColor(T.c).color).setOrigin(0).setStrokeStyle(1,0x3b1f0e));
-   c.add(this.T(x+13,y-1,T.t+'  '+fd.length+'/'+ids.length,{size:10,bold:true}));
-   const sm=fd.length===0?T.none:fd.length===ids.length?T.full:T.part;c.add(this.T(x+13,y+11,sm,{size:9,w:250,ls:0,color:'#4a2f1a'}))});
-  c.add(this.T(W/2,234,'Fim da Etapa 1. O que ficou em aberto segue com você para 1996. Preços e valores são fictícios.',{size:9,ox:.5,color:'#6a4a2a'}));
+  rows.forEach((r,i)=>{c.add(this.T(66,114+i*15,r[0],{size:11}));c.add(this.T(574,114+i*15,r[1],{size:11,ox:1,bold:true}))});
+  c.add(this.T(W/2,194,'O fiado não entra no caixa, mas é o que segura a rua.',{size:10,ox:.5,color:'#6a4a2a'}));
+  c.add(this.T(W/2,226,'Fim da Etapa 1. O que ficou em aberto segue com você para 1996. Preços e valores são fictícios.',{size:9,ox:.5,color:'#6a4a2a'}));
   const bt=this.add.nineslice(W/2-60,248,'ui','ui/slice9_12x12',120,16,4,4,4,4).setOrigin(0).setTint(0xffe08a).setScrollFactor(0).setInteractive();c.add(bt);
   c.add(this.T(W/2,250,'Jogar de novo',{size:10,bold:true,ox:.5}));bt.on('pointerdown',()=>{try{location.hash='#menu'}catch(e){}location.reload()});bt.on('pointerover',()=>bt.setTint(0xfff2b8));bt.on('pointerout',()=>bt.setTint(0xffe08a));
  }
@@ -2700,7 +2694,7 @@ function mapCards(){
 }
 function mapEpilogue(done){
  const cards=mapCards();const links=[];let sel=null;
- const ov=el(`<div class="bdv-map" role="dialog" aria-modal="true" aria-label="O mapa da Lia"><div class="bdv-board"><svg></svg><div class="bdv-msg" style="opacity:0"></div></div><div class="bdv-mbar"><div><b>O mapa da Lia.</b> A padaria fechou. Toque em um papel e depois em outro para ligar os dois com linha. Arraste para arrumar o balcão.</div><div style="display:flex;gap:8px;align-items:center"><span class="n">0 ligações</span><button class="bdv-btn" data-a="fim">Terminar o mapa</button></div></div></div>`);
+ const ov=el(`<div class="bdv-map" role="dialog" aria-modal="true" aria-label="O mapa da Lia"><div class="bdv-board"><svg></svg><div class="bdv-msg" style="opacity:0"></div></div><div class="bdv-mbar"><div><b>O mapa da Lia.</b> A padaria fechou. Toque em um papel e depois em outro para ligar os dois com linha. Arraste para arrumar o balcão.<br><span style="color:#7a3b17">Não precisa ligar tudo agora: algumas pontas só vão se juntar com o que aparecer nas próximas fases. O mapa segue com você e se completa no final.</span></div><div style="display:flex;gap:8px;align-items:center"><span class="n">0 ligações</span><button class="bdv-btn" data-a="fim">Terminar o mapa</button></div></div></div>`);
  ['keydown','keyup','pointerdown','mousedown','click'].forEach(t=>ov.addEventListener(t,e=>e.stopPropagation()));
  const board=ov.querySelector('.bdv-board'),svg=ov.querySelector('svg'),msg=ov.querySelector('.bdv-msg');
  const say=t=>{msg.textContent=t;msg.style.opacity=1;clearTimeout(say.t);say.t=setTimeout(()=>msg.style.opacity=0,2400)};
