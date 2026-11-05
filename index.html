@@ -2409,4 +2409,25 @@ Main.prototype.onKey=function(ev){
  return _onKey.call(this,ev);
 };
 })();
+</script>
+<script>
+/* ===== v19: rótulo de botão não fica preso na tela.
+   O rótulo de hover (ex.: "Entregar: Pão") só era apagado no pointerout; quando o botão some ao ser clicado,
+   o pointerout nunca chega. Agora, a cada quadro, o rótulo só fica se ainda houver um botão de verdade sob o cursor. ===== */
+(function(){
+const _updHover=Main.prototype.updHover;
+Main.prototype.updHover=function(){
+ if(this.hoverBtn){
+  let ok=true;
+  try{
+   const p=this.input.activePointer;
+   const hits=this.input.hitTestPointer(p)||[];
+   ok=hits.some(o=>o&&o.active&&o.visible!==false&&!((o.displayWidth||o.width||0)>=W-2&&(o.displayHeight||o.height||0)>=H-2));
+   if(this.dlgOn||this.cadOn||this.endOn)ok=false;
+  }catch(e){ok=true}
+  if(!ok)this.hoverBtn=null;
+ }
+ return _updHover.call(this);
+};
+})();
 </script></body></html>
