@@ -2731,4 +2731,141 @@ const _se=Main.prototype.showEnd;
 Main.prototype.showEnd=function(){const G=this,a=arguments;if(S.mapDone)return _se.apply(G,a);S.mapDone=true;closeLupa();mapEpilogue(()=>_se.apply(G,a))};
 window.__bdvMap=mapEpilogue;window.__bdvTutorial=tutorial;
 })();
-</script></body></html>
+</script><script>
+/* v22 — caderno da Lia em papel pautado (DOM), pedidos com "ir", gente, saberes dos objetos */
+(function(){
+const lk=document.createElement('link');lk.rel='stylesheet';lk.href='https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Pixelify+Sans:wght@400;600&display=swap';document.head.appendChild(lk);
+const st=document.createElement('style');st.textContent=`
+.nb-ov{position:fixed;inset:0;z-index:9000;background:rgba(14,8,4,.66);display:flex;align-items:center;justify-content:center;padding:12px;--hand:"Patrick Hand","Comic Neue",cursive;--px:"Pixelify Sans",monospace;--paperC:#f4ecd6;--rule:#c5d3e2;--margin:#d98a7a;--cover:#5a3620}
+.nb-ov[hidden]{display:none!important}
+.nb{width:min(700px,100%);max-height:min(92dvh,720px);display:flex;flex-direction:column;filter:drop-shadow(5px 6px 0 rgba(0,0,0,.45));animation:nbOpen .18s ease-out}
+@keyframes nbOpen{from{transform:translateY(10px) rotate(-.6deg);opacity:0}}
+.nb-tabs{display:flex;flex-wrap:wrap;gap:4px;padding-left:40px}
+.nb-tabs button{font-family:var(--px);font-size:14px;border:2px solid #3b1f0e;border-bottom:0;padding:4px 10px 3px;cursor:pointer;background:#d8c79a;color:#3b1f0e;position:relative;top:2px}
+.nb-tabs button:nth-child(3){background:#c9d9b0}.nb-tabs button:nth-child(4){background:#e8c2b0}.nb-tabs button:nth-child(5){background:#cfc3e0}
+.nb-tabs button[aria-selected="true"]{background:var(--paperC);z-index:2;padding-bottom:5px}
+.nb-tabs small{font-family:system-ui,sans-serif;font-size:11px;background:#3b1f0e;color:var(--paperC);padding:0 5px;margin-left:4px}
+.nb-page{position:relative;background:var(--paperC);color:#2e2418;border:2px solid #3b1f0e;border-left:14px solid var(--cover);min-height:0;flex:1;display:flex;flex-direction:column;background-image:linear-gradient(90deg,transparent 33px,var(--margin) 33px,var(--margin) 35px,transparent 35px),repeating-linear-gradient(transparent 0 25px,var(--rule) 25px 26px);background-position:0 0,0 46px;padding:10px 14px 10px 46px}
+.nb-page::before{content:"";position:absolute;left:-12px;top:14px;bottom:14px;width:8px;background:radial-gradient(circle,#2b1a10 2.5px,transparent 3px) 0 0/8px 22px repeat-y}
+.nb-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.nb-head h2{margin:0;font-family:var(--hand);font-size:28px;font-weight:400;color:#7a3b17;line-height:1.1}
+.nb-x{background:#3b1f0e;color:var(--paperC);border:0;font-family:var(--px);font-size:15px;width:32px;height:32px;cursor:pointer;flex:none;box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+.nb-x:hover,.nb-x:focus-visible{background:#7a3b17;outline:2px solid #f2c14e}
+.nb-pane{overflow:auto;min-height:140px;max-height:calc(min(92dvh,720px) - 120px);padding:6px 2px 8px;font-family:var(--hand);font-size:19px;line-height:26px;overflow-wrap:anywhere}
+.nb-pane p{margin:0}
+.nb-list{display:flex;flex-direction:column;gap:12px}
+.nb-item{position:relative;padding-left:26px}
+.nb-item::before{content:"";position:absolute;left:0;top:5px;width:16px;height:16px;background:var(--c,#b9a98a);opacity:.9;transform:rotate(-8deg);box-shadow:1px 1px 0 rgba(0,0,0,.25)}
+.nb-item b{font-weight:400;font-size:21px;color:#3b1f0e;text-decoration:underline;text-decoration-color:var(--c,#b9a98a);text-decoration-thickness:3px;text-underline-offset:3px}
+.nb-item em,.nb-meta{font-family:system-ui,sans-serif;font-style:normal;font-size:12px;color:#8a7458;line-height:1.6;display:block}
+.nb-bars{display:flex;gap:3px;margin:3px 0}.nb-bars i{width:16px;height:6px;border:1px solid #3b1f0e;background:#d8caa4}.nb-bars i.on{background:var(--c)}
+.nb-empty{color:#8a7458}
+.nb-note{margin-top:10px;color:#7a3b17}
+.nb-ped{display:grid;grid-template-columns:22px 1fr auto;gap:4px 8px;align-items:start}
+.nb-ped .bx{font-size:22px;line-height:24px;color:#3b1f0e}
+.nb-ped b{font-weight:400;font-size:21px;color:#3b1f0e}
+.nb-ped.feito b{text-decoration:line-through;text-decoration-color:#6fae69;text-decoration-thickness:2px}
+.nb-ped.cinza{opacity:.55}
+.nb-go{font-family:var(--px);font-size:13px;background:#f2c14e;color:#3b1f0e;border:2px solid #3b1f0e;padding:2px 10px;cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.3);white-space:nowrap}
+.nb-go:hover,.nb-go:focus-visible{background:#ffd76e}
+.nb-people{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.nb-person{display:grid;grid-template-columns:44px 1fr;gap:2px 10px;align-items:start}
+.nb-ph{width:44px;height:44px;overflow:hidden;background:#e8dcbc;border:2px solid #3b1f0e;transform:rotate(-2deg);box-shadow:1px 2px 0 rgba(0,0,0,.25)}
+.nb-ph img{width:100%;height:100%;object-fit:cover;object-position:top;image-rendering:pixelated;display:block}
+.nb-person b{font-weight:400;font-size:22px;color:#3b1f0e;line-height:24px}
+.nb-person ul{margin:0;padding-left:16px;font-size:17px;line-height:23px;color:#4a3b28}
+.nb-tag{font-family:system-ui,sans-serif;font-size:11px;color:#8a7458;letter-spacing:.04em;text-transform:uppercase}
+.nb-saber q{display:block;color:#7a3b17;margin-top:2px}
+.nb-saber q::before{content:"Lia: "}
+.nb-fiado{display:grid;grid-template-columns:auto 1fr;gap:0 18px}
+.nb-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;border-top:1px dashed #b9a67e;padding-top:6px;margin-top:4px;font-family:system-ui,sans-serif;font-size:11.5px;color:#8a7458}
+.nb-planta img{max-width:100%;image-rendering:pixelated;border:2px solid #3b1f0e}
+@media (max-width:560px){.nb-tabs{padding-left:16px}.nb-tabs button{font-size:12px;padding:3px 7px}.nb-page{padding-left:40px}.nb-pane{font-size:17px;line-height:24px}.nb-head h2{font-size:24px}}
+@media (prefers-reduced-motion:reduce){.nb{animation:none}}`;
+document.head.appendChild(st);
+
+/* saberes: o que cada objeto ensina sobre o lugar, e o que muda na Lia */
+const SABER={
+ altar:{t:'São Jorge e Oxóssi',c:'#c8453a',x:'Na Bahia, São Jorge é saudado como Oxóssi, o caçador. Quando o culto aos orixás era perseguido, ele se escondeu atrás das imagens dos santos católicos: o santo no altar, o orixá no coração. Esse encontro se chama sincretismo.',l:'Agora entendo por que a vó diz "Okê arô" baixinho quando acende a vela.'},
+ filtro:{t:'O filtro de barro',c:'#b5653a',x:'O barro é poroso: um pouco da água atravessa a talha e evapora do lado de fora, e isso esfria o resto. A vela de cerâmica lá dentro segura a sujeira. Água fresca sem geladeira, coisa de casa brasileira há gerações.',l:'A vó nunca comprou água. Diz que o filtro é mais velho que eu e trabalha calado.'},
+ forno:{t:'O forno de tijolo',c:'#8a4a2a',x:'Os sobrados do Pelourinho são dos séculos XVIII e XIX. Muitos térreos viraram comércio de bairro: padaria, quitanda, oficina. O forno de lenha e tijolo segura o calor por horas, por isso a fornada sai antes do sol.',l:'Se tirarem a padaria daqui, o forno não vai junto. Ele é da parede.'},
+ tinta:{t:'O X na parede',c:'#b8402e',x:'Em 1985 a UNESCO declarou o Centro Histórico de Salvador Patrimônio da Humanidade. Restaurar virou prioridade, mas nem sempre quem morava nos casarões entrou na conta do que devia ser preservado.',l:'Patrimônio de quem? A parede fica. E a gente?'},
+ aviso:{t:'Vistoria sem assinatura',c:'#5B8DB8',x:'Um aviso sem nome, só com carimbo, não diz quem decide nem como recorrer. Quem não sabe a quem perguntar acaba aceitando a primeira proposta.',l:'Vou guardar cada papel desses. Papel sem nome também é prova.'},
+ palco:{t:'O largo e a música',c:'#E07BA8',x:'O Olodum nasceu em 1979 no Maciel-Pelourinho, com moradores do bairro. O tambor saiu daqui antes de qualquer palco montado por fora.',l:'O Davi toca aqui desde menino. Ninguém precisou montar palco pra ele.'},
+ janela1:{t:'Os sobrados',c:'#F2C14E',x:'Quando as famílias ricas trocaram o Centro por bairros novos, no século XX, os casarões viraram moradia de muita gente junta: quartos alugados, cortiços, famílias inteiras num andar.',l:'Cada janela daquelas é uma casa. Não é fachada.'},
+ lousa:{t:'O fiado',c:'#E8833A',x:'Fiado é crédito sem banco: vale a palavra e o nome no caderno. Numa rua onde todo mundo se conhece, a caderneta da padaria é também um mapa de quem confia em quem.',l:'A vó não esquece um fiado, mas nunca cobrou ninguém na frente dos outros.'}
+};
+const SB=()=>S.saber||(S.saber={});
+
+const PEOPLE=[['vo','Vó Aurea','f'],['raimundo','Seu Raimundo','m'],['dandara','Dandara','f'],['davi','Davi','m'],['lucia','Lúcia, do Programa','f'],['ze','Seu Zé','m'],['zefa','Dona Zefa','f']];
+const TOLD={ray:'raimundo',dan:'dandara',vo:'vo'};
+const trTxt=(v,g)=>{const a=g==='f'?'a':'o';return v<=-1?'Anda chatead'+a+' comigo.':v<1?'Educad'+a+', mas fechad'+a+' comigo.':v<2?'Já puxa conversa comigo.':v<3?'Gosta de mim.':'Confia em mim.'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const imgOf=k=>{try{if(G.textures.exists(k))return G.textures.getBase64(k)}catch(e){}return null};
+
+const ov=document.createElement('div');ov.className='nb-ov';ov.hidden=true;
+ov.innerHTML='<div class="nb" role="dialog" aria-modal="true" aria-labelledby="nbT"><div class="nb-tabs" role="tablist"></div><div class="nb-page"><div class="nb-head"><h2 id="nbT">Caderno da Lia</h2><button type="button" class="nb-x" aria-label="Fechar o caderno">✕</button></div><div class="nb-pane"></div><div class="nb-foot"><span>O jogo fica pausado enquanto o caderno está aberto.</span><span>Esc, C ou ✕ fecham</span></div></div></div>';
+document.body.appendChild(ov);
+const tabsEl=ov.querySelector('.nb-tabs'),pane=ov.querySelector('.nb-pane');
+const TABS=['Pistas','Frentes','Pedidos','Gente','Saberes','Fiado','Planta'];
+let tab=0;
+
+function pedidos(){
+ const h=hh(),q=k=>S.q[k]==='done'?'feito':S.q[k]==='miss'?'passou':S.q[k]?'aberto':'ainda não';
+ const R=[];
+ R.push({t:'Acender o forno',d:'O dia começa no forno, na cozinha.',s:S.oven?'feito':'aberto',g:!S.oven&&{text:'Acender o forno',view:'b2',hot:'forno',px:[392,236]}});
+ R.push({t:'Levar a sacola ao sobrado de Seu Raimundo',d:'A sacola fica no depósito. O sobrado é do outro lado da rua.',s:q('a'),g:S.q.a==='on'&&(!S.sacPicked?{text:'Pegar a sacola',view:'b3',hot:'sac',px:[200,246]}:{text:'Levar a sacola',view:'rua',hot:'sobrado',px:[335,236]})});
+ R.push({t:'Fechar a mesa de dominó do Seu Zé',d:'Falta um na mesa da calçada. Uma partida leva tempo longe do balcão.',s:S.q.cDone?'feito':q('c'),g:S.q.c==='on'&&!S.q.cDone&&{text:'Sentar no dominó',view:'rua',hot:'dom',px:[880,256]}});
+ R.push({t:'Ver a discussão no largo',d:'Tem gente juntando no largo. Dá pra ver até o fim da tarde.',s:q('b'),g:S.q.b==='on'&&h<16.8&&{text:'Ir ao largo',view:'rua',hot:'circ',px:[1000,252]}});
+ ['e0a','e0b','e0c'].forEach(k=>{const E=EVENTS[k];if(!E)return;const done=S.evDone[k],open=!done&&h>=E.h0&&h<E.h1,late=!done&&h>=E.h1;
+  const fmt=x=>{const H=Math.floor(x),M=Math.round((x-H)*60);return H+'h'+(M?String(M).padStart(2,'0'):'')};
+  R.push({t:E.lab,d:'Acontece entre '+fmt(E.h0)+' e '+fmt(E.h1)+'.',s:done?'feito':late?'passou':open?'aberto':'ainda não',g:open&&E.view&&{text:E.lab,view:E.view,hot:k,px:[E.at-(k==='e0c'?30:-6),252]}})});
+ return R;
+}
+function render(){
+ tabsEl.innerHTML='';
+ TABS.forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',i===tab);
+  let n='';if(i===0)n=Object.keys(CLUES).filter(has).length;if(i===4)n=Object.keys(SB()).length;
+  b.innerHTML=esc(t)+(n!==''?'<small>'+n+'</small>':'');b.onclick=()=>{tab=i;try{G.sfx('page')}catch(e){};render()};tabsEl.appendChild(b)});
+ let H='';
+ if(tab===0){const ks=Object.keys(CLUES),f=ks.filter(has);
+  H=f.length?'<div class="nb-list">'+f.map(k=>{const th=THREADS[CLUES[k][0]];return '<div class="nb-item" style="--c:'+th.c+'"><b>'+esc(CLUES[k][1])+'</b><p>'+esc(CLUES[k][2])+'</p><em>'+esc(th.t)+'</em></div>'}).join('')+'</div>':'<p class="nb-empty">Nada anotado ainda. Repare nas coisas (F), converse, ouça as conversas da rua.</p>';
+  H+='<p class="nb-note">'+(ks.length-f.length)+' pistas ainda escondidas pela padaria e pela rua.</p>'}
+ if(tab===1){H='<div class="nb-list">'+Object.keys(THREADS).map(k=>{const T=THREADS[k],ids=Object.keys(CLUES).filter(x=>CLUES[x][0]===k),fd=ids.filter(has),sm=fd.length===0?T.none:fd.length===ids.length?T.full:T.part;
+   return '<div class="nb-item" style="--c:'+T.c+'"><b>'+esc(T.t)+'</b><div class="nb-bars">'+ids.map((x,j)=>'<i class="'+(j<fd.length?'on':'')+'"></i>').join('')+'</div><p>'+esc(sm)+'</p></div>'}).join('')+'</div><p class="nb-note">Você não precisa resolver todas as frentes. O que ficar em aberto tem consequência, neste dia e nas próximas fases.</p>'}
+ if(tab===2){H='<div class="nb-list">'+pedidos().map((r,i)=>'<div class="nb-ped '+(r.s==='feito'?'feito':r.s==='aberto'?'':'cinza')+'"><span class="bx">'+(r.s==='feito'?'☑':'☐')+'</span><div><b>'+esc(r.t)+'</b><p>'+esc(r.d)+'</p><em class="nb-meta">'+(r.s==='feito'?'feito':r.s==='passou'?'deixei passar':r.s==='aberto'?'em aberto':'ainda não pediram')+'</em></div>'+(r.g?'<button type="button" class="nb-go" data-i="'+i+'">ir ›</button>':'<span></span>')+'</div>').join('')+'</div>'}
+ if(tab===3){H='<div class="nb-people">'+PEOPLE.map(([id,n,g])=>{const w=WHO[id]||{},src=imgOf(w.p?'port_'+w.p+'_0':'por_'+id),pre=Object.keys(TOLD).filter(p=>TOLD[p]===id),told=Object.keys(CLUES).filter(k=>has(k)&&pre.some(p=>k.startsWith(p)));
+   return '<div class="nb-person"><div class="nb-ph">'+(src?'<img alt="" src="'+src+'">':'')+'</div><div><b>'+esc(n)+'</b><p>'+esc(trTxt(tr(id),g))+'</p>'+(told.length?'<span class="nb-tag">me contou</span><ul>'+told.map(k=>'<li>'+esc(CLUES[k][1])+'</li>').join('')+'</ul>':'')+'</div></div>'}).join('')+'</div>'}
+ if(tab===4){const ks=Object.keys(SABER),f=ks.filter(k=>SB()[k]);
+  H=(f.length?'<div class="nb-list">'+f.map(k=>{const s=SABER[k];return '<div class="nb-item nb-saber" style="--c:'+s.c+'"><b>'+esc(s.t)+'</b><p>'+esc(s.x)+'</p><q>'+esc(s.l)+'</q></div>'}).join('')+'</div>':'<p class="nb-empty">Os objetos da casa guardam história. Repare neles de perto (F) e o que a Lia aprender fica aqui.</p>')+'<p class="nb-note">'+f.length+' de '+ks.length+' saberes.</p>'}
+ if(tab===5){const rows=[['Seu Raimundo','sexta, sexta, sexta.'],['Seu Zé','sexta.'],['Dona Zefa','sábado, na caixinha.']];
+  (S.notes||[]).forEach(n=>rows.push([WHO[n.who]&&WHO[n.who].n||'Cliente',INAME[n.item].toLowerCase()+' · hoje']));
+  H='<div class="nb-fiado">'+rows.map(r=>'<b style="font-weight:400">'+esc(r[0])+'</b><span>'+esc(r[1])+'</span>').join('')+'</div><p class="nb-note">Fiado de hoje: '+brl(S.fiado)+' · Caixa: '+brl(S.money)+'</p>'}
+ if(tab===6){const src=imgOf('planta');H='<div class="nb-planta">'+(src?'<img alt="Planta da padaria vista de cima" src="'+src+'">':'')+'<p>A faixa azul é a área de trabalho, atrás do balcão. A verde é o salão, onde a freguesia espera. A porta, no alto à direita, dá pra rua.</p></div>'}
+ pane.innerHTML=H;pane.scrollTop=0;
+ if(tab===2){const R=pedidos();pane.querySelectorAll('.nb-go').forEach(b=>b.onclick=()=>{const g=R[+b.dataset.i].g;close();setTimeout(()=>{G._forceGoal=g;try{G.goGoal()}finally{G._forceGoal=null}},60)})}
+}
+function open(){ov.hidden=false;render();setTimeout(()=>ov.querySelector('.nb-x').focus(),30)}
+function close(){if(G.cadOn)G.toggleCad(false)}
+ov.querySelector('.nb-x').onclick=close;
+ov.addEventListener('pointerdown',e=>{if(e.target===ov)close()});
+window.addEventListener('keydown',e=>{if(ov.hidden)return;if(e.key==='Escape'||e.key==='c'||e.key==='C'){e.preventDefault();e.stopImmediatePropagation();close()}else if(e.key==='Tab'){/* mantém o foco dentro */const f=[...ov.querySelectorAll('button')];const i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}},true);
+
+Main.prototype.toggleCad=function(on){
+ if(on===this.cadOn)return;this.cadOn=on;
+ if(on){S.modal++;S.newClue=false;try{this.sfx('page')}catch(e){};open()}
+ else{S.modal=Math.max(0,S.modal-1);ov.hidden=true;try{this.sfx('page')}catch(e){};try{this.game.canvas.focus()}catch(e){}}
+};
+Main.prototype.buildCad=function(){if(this.cadOn)render()};
+const _goal=Main.prototype.goal;
+Main.prototype.goal=function(){if(this._forceGoal)return this._forceGoal;return _goal.apply(this,arguments)};
+
+/* reparar num objeto com saber: Lia aprende */
+const _obs=Main.prototype.observe;
+Main.prototype.observe=function(o){const r=_obs.apply(this,arguments);
+ const k=o&&o.id;if(k&&SABER[k]&&!SB()[k]){SB()[k]=true;S.newClue=true;setTimeout(()=>{try{G.toast('Novo saber no caderno: '+SABER[k].t)}catch(e){}},1600)}
+ return r};
+window.__SABER=SABER;
+})();
+</script>
+</body></html>
