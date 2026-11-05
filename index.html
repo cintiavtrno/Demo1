@@ -2324,4 +2324,89 @@ Main.prototype.openMenu=function(title,opts,ax,ay){
  this.menu.rows=[];
 };
 
+</script>
+<script>
+/* ===== v18: menu contextual em texto (nome, contexto e ações por extenso) no lugar da moeda de verbos.
+   Vale para todo menu de clique (pessoas, objetos, atrás do balcão, perguntar, pausa) e para as escolhas dos diálogos. ===== */
+(function(){
+const CC_PAPER=0xf2e6c2,CC_HL=0xf2c14e,CC_LINE=0xc9b98c;
+Main.prototype.ctxCard=function(parent,o){
+ const G=this,pad=8,maxW=o.maxW||230;
+ const c=G.add.container(0,0).setScrollFactor(0);parent.add(c);
+ const title=o.title?G.T(0,0,o.title,{size:11,bold:true,w:maxW-2*pad}):null;
+ const sub=o.sub?G.T(0,0,o.sub,{size:9,color:'#8a6a43',w:maxW-2*pad}):null;
+ const rows=o.opts.map(op=>{const t=G.T(0,0,op.t,{size:11,w:maxW-2*pad-6,ls:1});if(op.off)t.setColor('#a58b66');return t});
+ let w=118;[title,sub,...rows].forEach(t=>{if(t)w=Math.max(w,t.width+2*pad+6)});w=Math.min(maxW,Math.ceil(w));
+ let h=pad-2;const lay=[];
+ if(title){lay.push(['t',title,h]);h+=title.height+1}
+ if(sub){lay.push(['s',sub,h]);h+=sub.height+1}
+ if(title||sub){h+=3;lay.push(['d',null,h]);h+=4}
+ rows.forEach((r,i)=>{const rh=r.height+7;lay.push(['r',r,h,rh,i]);h+=rh+1});
+ h+=pad-3;
+ let x,y;
+ if(o.pos){const p=o.pos(w,h);x=p.x;y=p.y}
+ else{x=o.x+10;y=o.y-12;if(x+w>W-4)x=o.x-w-10}
+ x=Math.round(clamp(x,4,W-w-4));y=Math.round(clamp(y,4,H-h-4));
+ c.add(G.add.rectangle(3,3,w,h,0x000000,.35).setOrigin(0).setScrollFactor(0));
+ c.add(G.add.nineslice(0,0,'ui','ui/slice9_12x12',w,h,4,4,4,4).setOrigin(0).setTint(CC_PAPER).setScrollFactor(0));
+ const hits=[];let sel=-1;
+ const paint=i=>{hits.forEach((hh,k)=>hh.setFillStyle(CC_HL,k===i&&!o.opts[k].off?1:0));sel=i};
+ lay.forEach(([k,t,yy,rh,i])=>{
+  if(k==='t'||k==='s'){t.setPosition(pad,yy);c.add(t)}
+  else if(k==='d'){for(let xx=pad-2;xx<w-pad+2;xx+=3)c.add(G.add.rectangle(xx,yy,2,1,CC_LINE).setOrigin(0).setScrollFactor(0))}
+  else{const hit=G.add.rectangle(3,yy,w-6,rh,CC_HL,0).setOrigin(0).setScrollFactor(0).setInteractive({useHandCursor:!o.opts[i].off});
+   t.setPosition(pad+3,yy+3);
+   hit.on('pointerover',()=>{if(sel!==i){paint(i);if(!o.opts[i].off)SFX.click()}});
+   hit.on('pointerout',()=>{if(sel===i)paint(-1)});
+   hit.on('pointerdown',(p,lx,ly,ev)=>{if(ev&&ev.stopPropagation)ev.stopPropagation();o.onPick(i)});
+   c.add([hit,t]);hits.push(hit)}
+ });
+ c.setPosition(x,y+3).setAlpha(0);G.tweens.add({targets:c,alpha:1,y,duration:110,ease:'Quad.easeOut'});
+ return {c,w,h,get sel(){return sel},
+  move(d){const n=o.opts.length;let i=sel<0&&d<0?0:sel;for(let k=0;k<n;k++){i=(i+d+n)%n;if(!o.opts[i].off)break}paint(i)},
+  destroy(){c.destroy()}};
+};
+/* linha de contexto embaixo do nome */
+Main.prototype.ctxSub=function(title){
+ if(!title)return null;
+ if(/^Perguntar/.test(title))return 'Assuntos que a Lia já anotou no caderno.';
+ if(title==='Atrás do balcão')return 'Daqui a Lia atende, cobra e anota.';
+ for(const id in WHO){const w=WHO[id];if(w&&w.n===title&&id!=='lia'&&id!=='narra'&&id!=='radio'){const v=Math.max(0,Math.min(4,tr(id)));return 'Confiança na Lia: '+(v?'♥'.repeat(v):'ainda pouca')}}
+ return null;
+};
+/* menu de clique: cartão ao lado da pessoa ou do cursor */
+Main.prototype.openMenu=function(title,opts,ax,ay){
+ this.closeMenu();this.menuOn=true;S.modal++;
+ const c=this.add.container(0,0).setScrollFactor(0).setDepth(2100);this.menu={c,opts,rows:[]};
+ const out=this.add.rectangle(0,0,W,H,0,0.001).setOrigin(0).setScrollFactor(0).setInteractive();
+ out.on('pointerdown',(p,lx,ly,ev)=>{if(ev&&ev.stopPropagation)ev.stopPropagation();this.closeMenu()});c.add(out);
+ let px,py;
+ if(ax!==undefined&&ay!==undefined){px=ax;py=ay}
+ else{const p=this.input.activePointer;px=(p&&p.x?p.x:W*ZOOM/2)/ZOOM;py=(p&&p.y?p.y:H*ZOOM/2)/ZOOM}
+ this.menu.card=this.ctxCard(c,{title,sub:this.ctxSub(title),opts,x:px,y:py,onPick:i=>this.menuPick(i)});
+};
+/* escolhas do diálogo: mesmo cartão, encostado na caixa de fala (a última fala continua visível) */
+Main.prototype.dlgChoices=function(ch){
+ const D=this.dlg;D.choosing=true;(D.chBtns||[]).forEach(b=>b.destroy&&b.destroy());D.chBtns=[];D.more.setVisible(false);D.opts=ch;
+ D.ch.y=0;D.ch.setVisible(true);
+ const top=(D.c.y||0)<0;
+ const card=this.ctxCard(D.ch,{title:'O que a Lia faz?',opts:ch,maxW:300,onPick:i=>this.dlgPick(i),
+  pos:(w,h)=>({x:(W-w)/2,y:top?(D.c.y+176+88+6):(176-h-10)})});
+ D.card=card;D.chBtns.push(card);
+};
+const _dlgPick=Main.prototype.dlgPick;
+Main.prototype.dlgPick=function(i){if(this.dlg)this.dlg.card=null;return _dlgPick.call(this,i)};
+/* teclado: setas escolhem, Enter confirma; números continuam valendo */
+const _onKey=Main.prototype.onKey;
+Main.prototype.onKey=function(ev){
+ const k=ev.code;
+ const card=this.menuOn&&this.menu&&this.menu.card?this.menu.card:(this.dlgOn&&this.dlg&&this.dlg.choosing&&this.dlg.card?this.dlg.card:null);
+ if(card){
+  if(k==='ArrowDown'||k==='KeyS'){card.move(1);return}
+  if(k==='ArrowUp'||k==='KeyW'){card.move(-1);return}
+  if((k==='Enter'||k==='Space'||k==='KeyE')&&card.sel>=0){if(this.menuOn)this.menuPick(card.sel);else this.dlgPick(card.sel);return}
+ }
+ return _onKey.call(this,ev);
+};
+})();
 </script></body></html>
