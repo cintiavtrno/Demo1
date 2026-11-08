@@ -2935,4 +2935,84 @@ Main.prototype.say=function(lines,done){
  return _say.call(this,lines,done)};
 })();
 </script>
+<script>
+/* ===== O balcão e a rua: o cotidiano (atendimento, fiado, conversas) aparece como causa e efeito ===== */
+(function(){
+ const NOMES={raimundo:'Seu Raimundo',dandara:'Dandara',davi:'Davi',vo:'A vó',lucia:'Lúcia',ze:'Seu Zé'};
+ const PESSOAS=['raimundo','dandara','davi','vo','lucia'];
+ const faixa=v=>v>=3?2:v>=1?1:0;
+ const W_=['se fechou com a Lia','conversa com a Lia','confia na Lia'];
+ const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+ /* ---- 1) avisos na hora: o mundo reage ao que a Lia faz ---- */
+ const FLAGS=[
+  ['fiadoRai','anotou','Fiado anotado. Seu Raimundo sai do balcão mais leve.'],
+  ['fiadoRai','cobrou','Seu Raimundo pagou, mas saiu calado.'],
+  ['q0a','silencio','Seu Raimundo guardou que você não perguntou nada.'],
+  ['q0b','dan','Dandara e Davi notaram de que lado você ficou.'],
+  ['q0b','pergunta','Lúcia anotou que a Lia pergunta.'],
+  ['q0c','lata','Seu Zé ouviu a pergunta da lata. Vai lembrar.'],
+  ['lata','botou','R$ 0,20 a menos no caixa. A rua ficou sabendo.'],
+  ['gaveta',1,'A vó vai notar a gaveta mexida.']];
+ const vistoF={},vistoT={};let fila=[],iniciou=false;
+ function passo(){
+  const G=window.G;if(!G||!G.time||!S.started)return;
+  try{
+   if(!iniciou){iniciou=true;PESSOAS.forEach(p=>vistoT[p]=faixa(tr(p)));FLAGS.forEach(f=>vistoF[f[0]+f[1]]=(F[f[0]]===f[1]));return}
+   FLAGS.forEach(f=>{const k=f[0]+f[1],on=(F[f[0]]===f[1]);if(on&&!vistoF[k])fila.push(f[2]);vistoF[k]=on});
+   PESSOAS.forEach(p=>{const b=faixa(tr(p));if(b!==vistoT[p]){if(b===2||(b===0&&vistoT[p]>0))fila.push(NOMES[p]+' '+W_[b]+'.');vistoT[p]=b}});
+   if(fila.length>3)fila=fila.slice(-3);
+   if(fila.length&&!G.dlgOn&&!G.menuOn&&!G.endOn&&!S.modal&&!G.busy&&!G.title&&(G._nextToast||0)<G.time.now){
+    G.toast(fila.shift());G._nextToast=G.time.now+3200}
+  }catch(e){}}
+ setInterval(passo,400);window.__bdvFila=()=>fila.slice();
+
+ /* ---- 2) cadeias causa → efeito, montadas só com o que aconteceu ---- */
+ const brlx=v=>'R$ '+Number(v).toFixed(2).replace('.',',');
+ const NIV={0:'aberta',.5:'parcial',1:'plena'};
+ const FR=(k,v)=>'Frente "'+THREADS[k].t+'" '+NIV[v]+': '+HER_TXT[k][v];
+ function cadeias(Hh){
+  const C=[];
+  const notas={};(S.notes||[]).forEach(n=>{notas[n.who]=(notas[n.who]||0)+n.pr});
+  const th=Hh.th;
+  /* Seu Raimundo: balcão (fiado) -> relação -> sobrado */
+  if(F.fiadoRai==='anotou')C.push({fez:'Anotou o pão de Seu Raimundo na caderneta.',rua:'O fiado não entra no caixa, mas ele saiu sabendo que o balcão confia nele.',leva:'Raimundo: '+Hh.raimundo+'. '+FR('ray',th.ray)});
+  else if(F.fiadoRai==='cobrou')C.push({fez:'Cobrou o pão de Seu Raimundo na hora.',rua:'Ele pagou, contou as moedas devagar e saiu calado. A confiança caiu.',leva:'Raimundo: '+Hh.raimundo+'. '+FR('ray',th.ray)});
+  if(F.q0a)C.push({fez:{papel:'Perguntou a Seu Raimundo o que o aviso da porta quer dizer.',fazer:'Perguntou a Seu Raimundo o que ele vai fazer.',silencio:'Tomou café com Seu Raimundo sem perguntar nada.'}[F.q0a],rua:{papel:'Ele explicou o que sabe da vistoria e abriu a pista da casa.',fazer:'Ele disse que não sabe em quem confiar: quem espera ou quem assina primeiro.',silencio:'Ele agradeceu o silêncio. É o gesto que mais pesa para ele.'}[F.q0a],leva:(F.fiadoRai?'Raimundo: '+Hh.raimundo+'.':FR('ray',th.ray))});
+  /* Largo: três lados com interesses diferentes */
+  if(F.q0b==='dan')C.push({fez:'Na discussão do largo, ficou ao lado de quem mora.',rua:'Dandara quer ser informada antes. Lúcia, do Programa, respondeu: "no tempo certo". Davi viu de que lado você ficou.',leva:'Dandara: '+Hh.dandara+'. Davi: '+Hh.davi+'. '+FR('dan',th.dan)});
+  else if(F.q0b==='pergunta')C.push({fez:'Perguntou a Lúcia o que o Programa quer do largo.',rua:'Ela respondeu: o largo cheio, de visita, de show, de feira. Dandara ouviu a mesma resposta que você.',leva:'Lúcia: '+Hh.lucia+'. '+FR('prog',th.prog)});
+  else if(F.q0b==='ouviu')C.push({fez:'Ouviu a discussão do largo de longe.',rua:'Ninguém se comprometeu com você, ninguém se fechou. Cada lado ficou com o que já pensava.',leva:'Dandara: '+Hh.dandara+'. Lúcia: '+Hh.lucia+'.'});
+  /* Mesa e lata: o balcão paga a caixinha */
+  if(F.lata==='botou')C.push({fez:'Botou R$ 0,20 na lata do Seu Zé. O valor saiu do caixa da padaria.',rua:'Caixinha é o seguro do bairro: quem bota hoje levanta amanhã. O caixa perdeu pouco, a rua ganhou uma pista.',leva:FR('bai',th.bai)});
+  else if(F.q0c)C.push({fez:{mesa:'Disse a Seu Zé que a mesa fica.',lata:'Perguntou a Seu Zé se a caixinha sai junto.',olhou:'Ficou só olhando a mesa de dominó.'}[F.q0c],rua:{mesa:'Ele respondeu: a mesa a gente leva, a rua não.',lata:'Ele respondeu: lata não tem endereço, tem gente.',olhou:'Ninguém falou nada, mas a mesa notou.'}[F.q0c],leva:FR('bai',th.bai)});
+  /* Vó: gaveta e conversa final */
+  if(F.gaveta)C.push({fez:'Abriu a gaveta do balcão e achou a proposta de locação do ponto: o dobro do valor, uso café.',rua:'A vó viu a gaveta mexida. A confiança dela baixou um ponto.',leva:'Vó: '+Hh.vo+'. '+FR('vo',th.vo)});
+  if(F.fim)C.push({fez:F.fim==='juntos'?'Disse à vó: "a gente fica junto, seja o que vier".':'Perguntou à vó se ela está com medo.',rua:F.fim==='juntos'?'Ela respondeu: "juntas, então. Embora junto também tenha prazo".':'Ela respondeu que tem medo desde que se entende. O difícil é escolher de quê.',leva:'Vó: '+Hh.vo+'.'});
+  /* Balcão em números: o que o Programa não conta */
+  const ids=Object.keys(notas);
+  const quem=ids.map(i=>(NOMES[i]||i)+' '+brlx(notas[i])).join(', ');
+  C.push({fez:'Atendeu '+S.served+' pessoas ('+S.voServed+' pela vó). Caixa: '+brlx(S.money)+(S.fiado?'. Caderneta: '+brlx(S.fiado)+(quem?' ('+quem+')':''):'')+'. Desistiram de esperar: '+S.lost+'.',rua:S.lost>2?'Quem desistiu não volta amanhã com a mesma vontade. O balcão virou lugar de espera, e a rua percebe.':S.fiado>0?'Quem comeu fiado volta, e volta com notícia. A caderneta é a maneira que a vó tem de saber como a rua está.':'Tudo pago na hora. O caixa fecha, mas a vó fica sem saber quem está apertado.',leva:'Caixa: '+Hh.caixa+'.'});
+  return C}
+
+ function bloco(){
+  const Hh=herdar(),C=cadeias(Hh);
+  const nPistas=Object.keys(S.clues).length;
+  const css='display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin:5px 0;font-size:13.5px;line-height:1.35';
+  const cel=(k,t,c)=>`<div style="border-left:4px solid ${c};padding-left:8px"><div style="font:700 11px/1 inherit;letter-spacing:.08em;text-transform:uppercase;color:#8a6a43;margin-bottom:3px">${k}</div>${esc(t)}</div>`;
+  return `<h3>O balcão e a rua</h3><p style="font-size:14px">O que a Lia fez atrás do balcão e o que a rua fez com isso. As contas andam juntas: a prancheta do Programa mede fachadas, a caderneta da vó mede quem confia em quem. ${nPistas?`Hoje saíram ${nPistas} pista${nPistas===1?'':'s'} no caderno, todas de conversa, de atendimento ou de olhar o balcão.`:'Hoje nenhuma pista chegou ao caderno.'}</p>`+
+   C.map(c=>`<div style="${css}">${cel('Você fez',c.fez,'#E3A63C')}${cel('A rua respondeu',c.rua,'#5B8DB8')}${cel('Vai com você',c.leva,'#B9532E')}</div>`).join('')+
+   `<p style="font-size:12.5px;color:#6a4a2a">Na Etapa 1 o efeito aparece aqui e nos avisos durante o dia. O estado de cada pessoa e do caixa fica guardado neste navegador e segue para 1996.</p>`}
+
+ function inserir(card){
+  try{
+   if(!card||card.querySelector('[data-balcao]'))return;
+   const w=document.createElement('div');w.setAttribute('data-balcao','1');w.innerHTML=bloco();
+   const pessoas=[...card.querySelectorAll('h3')].find(h=>/pessoas/i.test(h.textContent));
+   const alvo=pessoas?pessoas.nextElementSibling:null;
+   if(alvo&&alvo.nextSibling)card.insertBefore(w,alvo.nextSibling);else card.insertBefore(w,card.querySelector('.bdv-row'));
+  }catch(e){console.error('balcao',e)}}
+ new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return;const c=n.matches&&n.matches('.bdv-sum')?n:(n.querySelector&&n.querySelector('.bdv-sum'));if(c)inserir(c)}))}).observe(document.body,{childList:true,subtree:true});
+ window.__bdvBalcao=bloco;
+})();
+</script>
 </body></html>
