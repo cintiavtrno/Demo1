@@ -507,7 +507,10 @@ class Main extends Phaser.Scene{
   this.hs.push({id:'radio3',x:220,y:158,w:30,h:18,label:S.radio?'Desligar o rádio':'Ligar o rádio',use:()=>this.toggleRadio(),prio:0});
   this.hs.push({id:'gav3',x:224,y:222,w:320,h:12,label:'Abrir a gaveta',use:()=>this.openGaveta(),prio:1});
   if(S.q.a==='on'&&!S.sacPicked){this.sacSpr=this.add_(this.add.image(259,176,'props','item/saco_de_pao').setOrigin(.5,1).setDepth(7));this.hs.push({id:'sac',x:246,y:146,w:28,h:32,label:'Pegar a sacola do Seu Raimundo',use:()=>this.pickSacola(),prio:-1})}
-  this.hs.push({id:'voltar3',x:240,y:240,w:160,h:28,label:'Sair de trás do balcão',use:()=>this.goView('b0',200,246),prio:2});
+  this.hs.push({id:'voltar3',x:0,y:236,w:640,h:34,label:'Sair de trás do balcão',use:()=>this.goView('b0',200,246),prio:2});
+  {const bx=this.add.nineslice(W-74,H-25,'ui','ui/slice9_12x12',132,20,4,4,4,4).setOrigin(.5,0).setScrollFactor(0).setDepth(880);
+   const bt=this.T(W-74,H-22,'▼  Sair do balcão  (S)',{size:9,bold:true,fixed:true,d:881,ox:.5});
+   this.add_(bx);this.add_(bt);this.exitBtn=[bx,bt]}
   this.fxo.station=true;
  }
  build_rua(){
@@ -1430,7 +1433,8 @@ Object.assign(Main.prototype,{
  Main.prototype.onKey=function(ev){const k=ev.code;
   if(!this.title&&!this.dlgOn&&!this.menuOn&&!this.cadOn&&!this.endOn&&!S.modal&&this.cur&&VIEW[this.cur].room){
    const m={Digit1:'pao',Digit2:'bolo',Digit3:'cafe',Digit4:'forno'};if(m[k]){this.barUse(m[k]);return}
-   if(k==='KeyG'){this.goGoal();return}}
+   if(k==='KeyG'){this.goGoal();return}
+   if(this.cur==='b3'&&!this.busy&&(k==='KeyS'||k==='ArrowDown')){this.goView('b0',200,246);return}}
   _onKey.call(this,ev)};
 })();
 
@@ -1926,11 +1930,6 @@ Object.assign(Main.prototype,{
   this.rad3=this.dimg('rad_off',222,176,6,0,1);
   this.steam(277,151,7);
   this.dspr('fan_1','fan_loop',128,6,3.5,.5,0);
-  // altarzinho de São Jorge (parede, entre a planta e o calendário)
-  this.altarSpr=this.dspr('altar_q1','altar_loop',345,93,4,.5,1);
-  this.candleGlow(345,93);
-  this.fita(392,78,5);
-  this.hs.push({id:'altar',x:301,y:52,w:90,h:44,label:'Altarzinho de São Jorge',use:()=>this.altar(),prio:1});
  },
 
  /* ----- interação com as peças novas ----- */
@@ -1976,7 +1975,6 @@ VIEW.b1.walk=(x,y)=>({x:clamp(x,12,630),y:clamp(y,x<150?232:(x>350?240:211),266)
 /* ---- observáveis ("reparar") das peças novas ---- */
 OBS.b1.push({id:'filtro',x:342,y:170,w:32,h:38,L:[['narra','Filtro de barro com a torneira de metal fosco e o copo de alumínio pendurado. Uma gota se forma, cai e some no pano molhado embaixo.'],['narra','A vó diz que água de filtro "assenta" a conversa. Quem entra com pressa bebe um gole e, sem perceber, fica.']],unlock:['bairro']});
 OBS.b1.push({id:'mesas',x:420,y:196,w:190,h:46,L:[['narra','Duas mesinhas de toalha xadrez e quatro cadeiras gastas. Quem tem tempo senta; quem não tem come em pé, no balcão.'],['narra','A vó nunca apressou ninguém para liberar mesa.']]});
-OBS.b3.push({id:'altar',x:301,y:52,w:90,h:44,L:[['narra','São Jorge a cavalo, com o dragão aos pés, num quadrinho de moldura dourada. Duas velas acesas, um copo d\'água, flores brancas.'],['narra','Ninguém mexe ali. Nem a vó explica. A vela vermelha é a que não pode apagar.']]});
 OBS.b0.push({id:'rádio_b0',x:390,y:160,w:30,h:24,L:[['narra','O rádio do balcão fica sempre na mesma estação. Quando liga, chia entre uma música e outra.']]});
 
 /* ---- correções de mecânica ---- */
@@ -2078,7 +2076,7 @@ Main.prototype.showTitle=function(){
  Main.prototype.altar=function(){
   S.obs.altar=true;this.sfx('pop');const ov=this.altarOverlay();
   this.say([['narra','São Jorge a cavalo, com o dragão aos pés, num quadrinho de moldura dourada. Um copo d\'água, flores brancas e duas velas. A vó acende a vermelha toda manhã, antes de abrir a porta.'],
-   ['narra','Ela nunca explicou por que o altar fica de frente para o caixa. Quem trabalha aqui olha para ele a cada pedido.']],()=>ov.forEach(o=>o.destroy()));
+   ['narra','Ela nunca explicou por que o altar fica em cima da geladeira, de frente para a porta. Quem entra olha para ele antes de pedir.']],()=>ov.forEach(o=>o.destroy()));
  };
  const _bb0=Main.prototype.build_b0;
  Main.prototype.build_b0=function(){_bb0.call(this);
