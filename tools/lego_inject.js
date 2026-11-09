@@ -24,12 +24,12 @@ void main(){
  s*=.25;float a=s.a;vec3 c=a>.001?s.rgb/a:vec3(0.);
  c=near(c);
  vec2 q=f-.5;float d=length(q);float R=.34;vec3 col;
- if(d<R){vec2 n=q/R;float l=-(n.x+n.y)*.5;col=c*(1.+.24*l);if(d>R*.8)col*=.86;col+= (d<R*.5&&l>.2)?vec3(.05):vec3(0.);}
- else{col=c*.9;float sh=smoothstep(R+.16,R,d)*step(0.,q.x+q.y);col*=1.-.18*sh;}
+ if(d<R){vec2 n=q/R;float l=-(n.x+n.y)*.5;col=c*(1.+.34*l);if(d>R*.8)col*=.82;col+= (d<R*.5&&l>.2)?vec3(.05):vec3(0.);}
+ else{col=c*.88;float sh=smoothstep(R+.16,R,d)*step(0.,q.x+q.y);col*=1.-.22*sh;}
  float e=min(min(f.x,1.-f.x),min(f.y,1.-f.y));col*=.9+.1*smoothstep(0.,.08,e);
  gl_FragColor=vec4(col*a,a);
 }`;
- const L=window.LEGO={on:!window.__legoStartOff,cell:2,min:2,max:4};
+ const L=window.LEGO={on:!window.__legoStartOff,cell:(ZOOM>=3?2:3),min:2,max:4};
  class LegoFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline{
   constructor(game){super({game,name:'LegoFX',fragShader:FRAG});this._pal=new Float32Array(PAL.flat().map(v=>v/255));}
   onPreRender(){this.set2f('uRes',this.renderer.width,this.renderer.height);this.set1f('uCell',L.cell*ZOOM);this.set3fv('uPal',this._pal);}
