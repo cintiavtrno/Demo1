@@ -2711,51 +2711,90 @@ function mapCards(){
  return cards;
 }
 function mapEpilogue(done){
- const cards=mapCards();const links=[];let sel=null;
- const ov=el(`<div class="bdv-map" role="dialog" aria-modal="true" aria-label="O mapa da Lia"><div class="bdv-board"><svg></svg><div class="bdv-msg" style="opacity:0"></div></div><div class="bdv-mbar"><div><b>O mapa da Lia.</b> A padaria fechou. Toque em um papel e depois em outro para ligar os dois com linha. Arraste para arrumar o balcão.<br><span style="color:#7a3b17">Não precisa ligar tudo agora: algumas pontas só vão se juntar com o que aparecer nas próximas fases. O mapa segue com você e se completa no final.</span></div><div style="display:flex;gap:8px;align-items:center"><span class="n">0 ligações</span><button class="bdv-btn bdv-ghost" data-a="dica">Dica</button><button class="bdv-btn" data-a="fim">Terminar o mapa</button></div></div></div>`);
+ /* mapa v2: papéis em grade (sem sobrepor), linhas finas com número, conclusões listadas uma vez ao lado */
+ if(!document.getElementById('bdv-m2css')){const s=document.createElement('style');s.id='bdv-m2css';s.textContent=`
+.m2-wrap{flex:1;min-height:0;display:flex;gap:0;background:var(--paper,#f2e6c2)}
+.m2-board{flex:1;min-width:0;overflow:auto;position:relative}
+.m2-inner{position:relative;padding:18px 20px 24px}
+.m2-inner svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.m2-grid{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:34px 30px;z-index:1}
+.m2-card{background:var(--paper,#f2e6c2);border-top:1px solid rgba(42,26,17,.55);padding:7px 9px 9px;color:var(--ink,#2a1a11);cursor:pointer;font-size:13.5px;line-height:1.35;user-select:none}
+.m2-card:hover{background:rgba(227,166,60,.14)}
+.m2-card em{display:block;font:400 11px "Pixelify Sans",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--mut,#7a6448);font-style:normal;margin-bottom:2px}
+.m2-card em::before{content:"";display:inline-block;width:8px;height:8px;background:var(--c,#b8a77a);margin-right:6px}
+.m2-card b{display:block;font-size:14.5px;margin-bottom:2px}
+.m2-card span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:#4a3a2a}
+.m2-card i{display:block;font-style:normal;font-size:12px;margin-top:5px;color:var(--terra,#a0391f)}
+.m2-card i.solta{color:var(--mut,#7a6448)}
+.m2-card .nums{display:flex;gap:4px;margin-top:6px}
+.m2-card .nums u{text-decoration:none;font:700 11px system-ui;color:#fff;background:var(--k);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.m2-card.sel{background:rgba(227,166,60,.38)}
+.m2-card.cand{background:rgba(227,166,60,.2);outline:2px dashed var(--terra,#a0391f);outline-offset:2px}
+.m2-card.apaga{opacity:.28}
+.m2-side{width:300px;flex:none;border-left:1px solid rgba(42,26,17,.25);padding:18px 18px;overflow:auto;color:var(--ink,#2a1a11)}
+.m2-side h3{margin:0 0 4px;font-size:17px}
+.m2-side p{margin:0 0 10px;font-size:13px;color:var(--mut,#7a6448);line-height:1.4}
+.m2-side ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.m2-side li{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.38;cursor:pointer;padding:6px 6px;border-left:3px solid var(--k)}
+.m2-side li:hover,.m2-side li.on{background:rgba(227,166,60,.22)}
+.m2-side li u{text-decoration:none;flex:none;font:700 11px system-ui;color:#fff;background:var(--k);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.m2-side li small{display:block;color:var(--mut,#7a6448);font-size:12px;margin-top:2px}
+.m2-msg{position:sticky;top:8px;margin:0 auto 10px;width:max-content;max-width:92%;background:var(--ink,#2a1a11);color:var(--paper,#f2e6c2);padding:5px 12px;font-size:14px;transition:opacity .4s;z-index:5;text-align:center}
+@media (max-width:760px){.m2-wrap{flex-direction:column}.m2-side{width:auto;border-left:0;border-top:1px solid rgba(42,26,17,.25);max-height:34vh}.m2-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:26px 18px}}`;document.head.appendChild(s)}
+ const CORES=['#a0391f','#2e7e78','#7a5aa6','#b5761a','#3f6fa0','#5f7f2a','#b0607a','#6a4a2a','#2f6b4f','#8a3b6e'];
+ const cards=mapCards();const links=[];let sel=null,foco=null;const conc=[];   // conc: {t,k,n}
+ const ov=el(`<div class="bdv-map" role="dialog" aria-modal="true" aria-label="O mapa da Lia"><div class="m2-wrap"><div class="m2-board"><div class="m2-inner"><div class="m2-msg" style="opacity:0"></div><svg></svg><div class="m2-grid"></div></div></div>
+  <aside class="m2-side"><h3>O que o mapa diz</h3><p>Cada ligação vira uma conclusão da Lia. Ligações que dizem a mesma coisa ficam juntas, com o mesmo número. Toque numa conclusão para ver as linhas dela.</p><ol></ol></aside></div>
+  <div class="bdv-mbar"><div><b>O mapa da Lia.</b> A padaria fechou. Toque em um papel e depois em outro para ligar os dois.<br><span style="color:#7a3b17">Não precisa ligar tudo agora: algumas pontas só se juntam nas próximas fases.</span></div><div style="display:flex;gap:14px;align-items:center"><span class="n">0 ligações</span><button class="bdv-btn bdv-ghost" data-a="dica">Dica</button><button class="bdv-btn" data-a="fim">Terminar o mapa</button></div></div></div>`);
  ['keydown','keyup','pointerdown','mousedown','click'].forEach(t=>ov.addEventListener(t,e=>e.stopPropagation()));
- const board=ov.querySelector('.bdv-board'),svg=ov.querySelector('svg'),msg=ov.querySelector('.bdv-msg');
- const say=t=>{msg.textContent=t;msg.style.opacity=1;clearTimeout(say.t);say.t=setTimeout(()=>msg.style.opacity=0,2400)};
- const pos={};
- const cols=Math.max(3,Math.min(5,Math.ceil(Math.sqrt(cards.length*1.6))));
+ const grid=ov.querySelector('.m2-grid'),svg=ov.querySelector('svg'),inner=ov.querySelector('.m2-inner'),msg=ov.querySelector('.m2-msg'),list=ov.querySelector('ol');
+ const say=t=>{msg.textContent=t;msg.style.opacity=1;clearTimeout(say.t);say.t=setTimeout(()=>msg.style.opacity=0,2600)};
  const partners=id=>cards.filter(o=>o.id!==id&&findLink(id,o.id)).map(o=>o.id);
- const hintOf=id=>{const ps=partners(id);if(!ps.length)return '<i class="hint solta">ponta solta · guarde pra próxima fase</i>';const ks=[...new Set(ps.map(p=>p[0]))];return '<i class="hint">liga com '+ks.map(k=>KIND[k]).join(' ou ')+'</i>'};
- cards.forEach((c,i)=>{const d=el(`<div class="bdv-mc" style="--c:${c.c}" data-id="${c.id}"><em>${c.kind}</em><b>${c.t}</b>${c.d&&c.d!==c.t?`<span>${c.d.length>100?c.d.slice(0,98)+'…':c.d}</span>`:''}${hintOf(c.id)}</div>`);
-  const col=i%cols,row=Math.floor(i/cols);pos[c.id]={x:3+col*(94/cols)+Math.random()*2,y:4+row*(88/Math.ceil(cards.length/cols))+Math.random()*3};
-  d.style.left=pos[c.id].x+'%';d.style.top=pos[c.id].y+'%';d.style.rotate=(Math.random()*4-2).toFixed(1)+'deg';
-  let sx,sy,ox,oy,moved=false,down=false;
-  d.addEventListener('pointerdown',e=>{down=true;moved=false;d.setPointerCapture(e.pointerId);const b=board.getBoundingClientRect(),r=d.getBoundingClientRect();sx=e.clientX;sy=e.clientY;ox=r.left-b.left;oy=r.top-b.top});
-  d.addEventListener('pointermove',e=>{if(!down)return;if(Math.hypot(e.clientX-sx,e.clientY-sy)>6)moved=true;if(!moved)return;const b=board.getBoundingClientRect();d.style.left=((ox+e.clientX-sx)/b.width*100)+'%';d.style.top=((oy+e.clientY-sy)/b.height*100)+'%';drawLinks()});
-  d.addEventListener('pointerup',()=>{down=false;if(moved)return;pick(c.id,d)});
-  board.appendChild(d)});
- if(!cards.length){board.appendChild(el('<div class="bdv-msg" style="opacity:1;top:40%">Hoje a Lia não anotou nada. O mapa fica em branco, e a rua também não sabe de mais nada. Jogue de novo e repare em mais coisas.</div>'))}
- const glow=ids=>{board.querySelectorAll('.bdv-mc.cand').forEach(x=>x.classList.remove('cand'));(ids||[]).forEach(i=>{const x=board.querySelector(`[data-id="${i}"]`);x&&x.classList.add('cand')})};
+ const linked=(a,b)=>links.some(l=>(l.a===a&&l.b===b)||(l.a===b&&l.b===a));
+ const cardEl=id=>grid.querySelector(`[data-id="${id}"]`);
+ const hintOf=id=>{const ps=partners(id).filter(p=>!linked(id,p));if(!partners(id).length)return '<i class="solta">ponta solta · fica para a próxima fase</i>';if(!ps.length)return '<i class="solta">já ligou tudo o que dava</i>';const ks=[...new Set(ps.map(p=>p[0]))];return '<i>liga com '+ks.map(k=>KIND[k]).join(' ou ')+'</i>'};
+ cards.forEach(c=>{const d=el(`<div class="m2-card" style="--c:${c.c}" data-id="${c.id}" tabindex="0" role="button"><em>${c.kind}</em><b>${c.t}</b>${c.d&&c.d!==c.t?`<span>${c.d}</span>`:''}<div class="h">${hintOf(c.id)}</div><div class="nums"></div></div>`);
+  d.addEventListener('click',()=>pick(c.id,d));d.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(c.id,d)}});grid.appendChild(d)});
+ if(!cards.length)grid.appendChild(el('<p style="grid-column:1/-1;font-size:15px">Hoje a Lia não anotou nada. O mapa fica em branco. Jogue de novo e repare em mais coisas.</p>'));
+ const glow=ids=>{grid.querySelectorAll('.cand').forEach(x=>x.classList.remove('cand'));(ids||[]).forEach(i=>{const x=cardEl(i);x&&x.classList.add('cand')})};
  function pick(id,d){
-  if(!sel){sel={id,d};d.classList.add('sel');const ps=partners(id).filter(p=>!links.some(l=>(l.a===id&&l.b===p)||(l.b===id&&l.a===p)));
-   if(!ps.length)say('Esse papel ainda não liga com nada daqui. É uma ponta solta: pode ser que se junte numa próxima fase.');else if(links.length<1||hintOn){glow(ps);say('Os papéis que brilham conversam com esse. Toque em um deles.')}return}
+  if(!sel){sel={id,d};d.classList.add('sel');const ps=partners(id).filter(p=>!linked(id,p));
+   if(!partners(id).length)say('Esse papel ainda não liga com nada daqui. É uma ponta solta para a próxima fase.');else if(!ps.length)say('Esse papel já está ligado com tudo o que dava.');else if(links.length<2||hintOn){glow(ps);say('Os papéis marcados conversam com esse.')}return}
   if(sel.id===id){sel.d.classList.remove('sel');sel=null;glow();return}
   const a=sel.id,b=id;sel.d.classList.remove('sel');sel=null;glow();
   const P=findLink(a,b);
   if(!P){say('Esses dois ainda não conversam. Olhe a dica no pé de cada papel.');return}
-  if(links.some(l=>(l.a===a&&l.b===b)||(l.a===b&&l.b===a))){say('Essa ligação já está no mapa.');return}
-  links.push({a,b,P});board.querySelector(`[data-id="${a}"]`).classList.add('linked');d.classList.add('linked');drawLinks();
-  ov.querySelector('.n').textContent=links.length+(links.length===1?' ligação':' ligações');say('Ligação: '+P.t);
- }
- function drawLinks(){
-  const b=board.getBoundingClientRect();svg.innerHTML='';board.querySelectorAll('.bdv-conc').forEach(x=>x.remove());
-  for(const l of links){const A=board.querySelector(`[data-id="${l.a}"]`).getBoundingClientRect(),B=board.querySelector(`[data-id="${l.b}"]`).getBoundingClientRect();
-   const x1=A.left+A.width/2-b.left,y1=A.top+A.height/2-b.top,x2=B.left+B.width/2-b.left,y2=B.top+B.height/2-b.top;
-   const ln=document.createElementNS('http://www.w3.org/2000/svg','path');const mx=(x1+x2)/2,my=(y1+y2)/2+30;
-   ln.setAttribute('d',`M${x1},${y1} Q${mx},${my} ${x2},${y2}`);ln.setAttribute('stroke','#c0392b');ln.setAttribute('stroke-width','3');ln.setAttribute('fill','none');svg.appendChild(ln);
-   for(const[x,y]of[[x1,y1],[x2,y2]]){const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','5');c.setAttribute('fill','#3b1f0e');svg.appendChild(c)}
-   const tag=el(`<div class="bdv-conc">${l.P.t}</div>`);tag.style.left=((x1+x2)/2)+'px';tag.style.top=((y1+y2)/2+16)+'px';board.appendChild(tag)}
- }
- window.addEventListener('resize',drawLinks);
+  if(linked(a,b)){say('Essa ligação já está no mapa.');return}
+  let C=conc.find(x=>x.t===P.t);if(!C){C={t:P.t,k:CORES[conc.length%CORES.length],n:conc.length+1};conc.push(C)}
+  links.push({a,b,P,C});ov.querySelector('.n').textContent=links.length+(links.length===1?' ligação':' ligações');
+  say(conc.length&&C.n===conc.length&&links.filter(l=>l.C===C).length===1?'Nova conclusão: '+P.t:'Mais uma ligação para a conclusão '+C.n+'.');
+  foco=null;refresh()}
+ function refresh(){
+  // conclusões
+  list.innerHTML='';conc.forEach(C=>{const ls=links.filter(l=>l.C===C);const li=el(`<li style="--k:${C.k}" class="${foco===C?'on':''}"><u>${C.n}</u><div>${C.t}<small>${ls.length} ${ls.length===1?'ligação':'ligações'}</small></div></li>`);
+   li.onclick=()=>{foco=foco===C?null:C;refresh()};list.appendChild(li)});
+  // cartões: números das conclusões e dica atualizada
+  cards.forEach(c=>{const d=cardEl(c.id);if(!d)return;const cs=[...new Set(links.filter(l=>l.a===c.id||l.b===c.id).map(l=>l.C))];
+   d.querySelector('.nums').innerHTML=cs.map(C=>`<u style="--k:${C.k}">${C.n}</u>`).join('');d.querySelector('.h').innerHTML=hintOf(c.id);
+   d.classList.toggle('apaga',!!foco&&!links.some(l=>l.C===foco&&(l.a===c.id||l.b===c.id)))});
+  draw()}
+ function draw(){
+  svg.innerHTML='';svg.setAttribute('width',inner.scrollWidth);svg.setAttribute('height',inner.scrollHeight);
+  const ctr=e=>({x:e.offsetLeft+grid.offsetLeft+e.offsetWidth/2,y:e.offsetTop+grid.offsetTop+e.offsetHeight/2,w:e.offsetWidth,h:e.offsetHeight});
+  const NS='http://www.w3.org/2000/svg';
+  links.forEach((l,i)=>{const A=cardEl(l.a),B=cardEl(l.b);if(!A||!B)return;const p=ctr(A),q=ctr(B);
+   const op=foco&&foco!==l.C?.12:1;
+   const ln=document.createElementNS(NS,'path');const mx=(p.x+q.x)/2,my=(p.y+q.y)/2-18;
+   ln.setAttribute('d',`M${p.x},${p.y} Q${mx},${my} ${q.x},${q.y}`);ln.setAttribute('stroke',l.C.k);ln.setAttribute('stroke-width',foco===l.C?3:2);ln.setAttribute('fill','none');ln.setAttribute('opacity',op);ln.setAttribute('stroke-linecap','round');svg.appendChild(ln);
+   const bx=(p.x+2*mx+q.x)/4,by=(p.y+2*my+q.y)/4;
+   const c=document.createElementNS(NS,'circle');c.setAttribute('cx',bx);c.setAttribute('cy',by);c.setAttribute('r',9);c.setAttribute('fill',l.C.k);c.setAttribute('opacity',op);svg.appendChild(c);
+   const t=document.createElementNS(NS,'text');t.setAttribute('x',bx);t.setAttribute('y',by+4);t.setAttribute('text-anchor','middle');t.setAttribute('font-size','11');t.setAttribute('font-weight','700');t.setAttribute('font-family','system-ui');t.setAttribute('fill','#fff');t.setAttribute('opacity',op);t.textContent=l.C.n;svg.appendChild(t)})}
+ const onR=()=>draw();window.addEventListener('resize',onR);
  let hintOn=false;ov.querySelector('[data-a="dica"]').onclick=()=>{hintOn=true;
-  for(const c of cards)for(const p of partners(c.id))if(!links.some(l=>(l.a===c.id&&l.b===p)||(l.b===c.id&&l.a===p))){glow([c.id,p]);say('Experimente ligar os dois papéis que estão brilhando.');return}
-  say('Você já ligou tudo o que dava hoje. O resto fica pras próximas fases.')};
- ov.querySelector('[data-a="fim"]').onclick=()=>{F.mapa=[...new Set(links.map(l=>l.P.t))];ov.remove();window.removeEventListener('resize',drawLinks);carry(done)};
- document.body.appendChild(ov);
+  for(const c of cards)for(const p of partners(c.id))if(!linked(c.id,p)){glow([c.id,p]);const e=cardEl(c.id);e&&e.scrollIntoView({block:'nearest',behavior:'smooth'});say('Experimente ligar os dois papéis marcados.');return}
+  say('Você já ligou tudo o que dava hoje. O resto fica para as próximas fases.')};
+ ov.querySelector('[data-a="fim"]').onclick=()=>{F.mapa=conc.map(C=>C.t);ov.remove();window.removeEventListener('resize',onR);carry(done)};
+ document.body.appendChild(ov);refresh();
 }
 /* o que segue para a próxima fase */
 function carry(done){
