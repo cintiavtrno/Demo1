@@ -3177,4 +3177,51 @@ Main.prototype.say=function(lines,done){
   if(this.cur==='rua'){r.dropSprite();r.makeSprite();r.setMode('idle');r.updSprite()}};
 })();
 </script>
+<script>
+/* ===== v23: perguntas só com o que a Lia já sabe; clientes ficam um pouco depois de servidos; gente andando mais devagar ===== */
+(function(){
+ // --- o que a Lia sabe de fato (não basta o assunto estar aberto no caderno) ---
+ const SABE={
+  aviso:()=>has('ray1')||!!S.q.aDone||!!(S.evDone&&S.evDone.q0a),                       // viu o papel na porta ou entrou no sobrado
+  lucia:()=>!!(S.obs&&S.obs.janela1)||!!(S.evDone&&S.evDone.e0b)||S.q.b==='done'||tr('lucia')>0,   // viu a moça da prancheta medindo
+  programa:()=>has('prog1')||has('ray1')||S.q.b==='done'};                               // ouviu o nome "Programa" (rádio, aviso, largo)
+ const REQ={
+  'raimundo:papel':'aviso','dandara:papel':'aviso','davi:papel':'aviso','lucia:papel':'aviso',
+  'raimundo:programa':'lucia','dandara:programa':'programa','davi:programa':'programa','vo:programa':'programa','lucia:programa':'programa',
+  'lucia:ponto':'lucia','lucia:rua':'lucia','lucia:casa':'lucia'};
+ window.askOk=(id,t)=>{const r=REQ[id+':'+t];return !r||SABE[r]()};
+ // perguntas que pressupunham coisa que ninguém contou
+ ASKQ.davi.programa='O Programa tem alguma coisa a ver com a roda, Davi?';
+ ASKQ.raimundo.bairro='Quando alguém da rua adoece, quem ajuda, Seu Raimundo?';
+ Main.prototype.askTopics=function(id){
+  S.asked=S.asked||{};
+  return Object.keys(ASK[id]||{}).filter(t=>{if(!S.topics[t]||!askOk(id,t))return false;const was=S.asked[id+':'+t];
+   const ents=(ASK[id][t]||[]).filter(e=>tr(id)>=(e.m||0)&&(!e.k||has(e.k)));if(!ents.length)return false;
+   if(was===undefined)return true;return ents.some(e=>(e.m||0)>was)}).slice(0,4)};
+ // --- cliente servido fica um tempo no balcão (dá para conversar) antes de ir embora ---
+ const FICA=[];
+ const _sh=Main.prototype.sendHome;
+ Main.prototype.sendHome=function(c){
+  if(c.state==='done'&&!c.fica&&c.a.id!=='raimundo'){c.fica=1;   // Raimundo sai logo: a história da sacola esquecida depende disso
+   const a=c.a;a.path=[];if(a.setMode)a.setMode('idle');
+   c.slot=-1;if(a.view==='b0')a.walkTo(400+Math.round(Math.random()*170),236+Math.round(Math.random()*24));   // sai da frente do balcão e libera a vaga
+   c.ate=S.min+(a.fig?24:45);FICA.push(c);                                   // ~15 s (figurante) / ~30 s (vizinho) de jogo correndo
+   if(a.spr&&this.cur===a.view)this.bark(a,c.item==='cafe'?'Vou tomar aqui mesmo.':c.item==='bolo'?'Esse bolo eu como aqui.':'Deixa eu ver se o pão tá quente.',2.4);
+   return}
+  const r=_sh.call(this,c);c.a.spd=Math.min(c.a.spd,42);return r};
+ const _uc=Main.prototype.updCust;
+ Main.prototype.updCust=function(dt){
+  for(let i=FICA.length-1;i>=0;i--){const c=FICA[i];if(S.min>=c.ate||S.ended){FICA.splice(i,1);_sh.call(this,c);c.a.spd=Math.min(c.a.spd,42)}}
+  return _uc.call(this,dt)};
+ const _sc=Main.prototype.spawnCust;
+ Main.prototype.spawnCust=function(def){const r=_sc.call(this,def);if(r){const t=S.tickets[S.tickets.length-1];if(t&&t.a)t.a.spd=42}return r};
+ // --- andar mais devagar: vizinhos e figurantes da rua ---
+ [['raimundo',38],['dandara',42],['davi',44],['lucia',40]].forEach(([k,v])=>{if(KINDS[k])KINDS[k].spd=v});
+ const _ia=Main.prototype.initActors;
+ Main.prototype.initActors=function(){_ia.call(this);['raimundo','dandara','davi','lucia'].forEach(k=>{const a=this.A[k];if(a&&KINDS[k])a.spd=KINDS[k].spd})};
+ const _am=Main.prototype.ambient;
+ Main.prototype.ambient=function(){const antes=new Set(Object.keys(this.A));const r=_am.apply(this,arguments);
+  for(const id in this.A){if(!antes.has(id)&&this.A[id].ambient)this.A[id].spd=Math.round(this.A[id].spd*.62)}return r};
+})();
+</script>
 </body></html>
