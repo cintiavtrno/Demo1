@@ -1,0 +1,332 @@
+{
+ "frames": {
+  "item/quiabo": {
+   "frame": {
+    "x": 0,
+    "y": 10,
+    "w": 24,
+    "h": 7
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 7
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 7
+   }
+  },
+  "item/quiabo_feixe": {
+   "frame": {
+    "x": 25,
+    "y": 0,
+    "w": 28,
+    "h": 17
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 17
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 17
+   }
+  },
+  "item/quiabo_cortado": {
+   "frame": {
+    "x": 54,
+    "y": 9,
+    "w": 23,
+    "h": 8
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 23,
+    "h": 8
+   },
+   "sourceSize": {
+    "w": 23,
+    "h": 8
+   }
+  },
+  "obj/tabua_quiabo": {
+   "frame": {
+    "x": 78,
+    "y": 7,
+    "w": 30,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 10
+   }
+  },
+  "obj/alguidar_quiabo": {
+   "frame": {
+    "x": 109,
+    "y": 6,
+    "w": 30,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 11
+   }
+  },
+  "obj/panela_barro": {
+   "frame": {
+    "x": 140,
+    "y": 3,
+    "w": 23,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 23,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 23,
+    "h": 14
+   }
+  },
+  "obj/panela_caruru_0": {
+   "frame": {
+    "x": 164,
+    "y": 3,
+    "w": 22,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 22,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 22,
+    "h": 14
+   }
+  },
+  "obj/panela_caruru_1": {
+   "frame": {
+    "x": 187,
+    "y": 3,
+    "w": 22,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 22,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 22,
+    "h": 14
+   }
+  },
+  "item/prato_caruru": {
+   "frame": {
+    "x": 210,
+    "y": 6,
+    "w": 25,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 25,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 25,
+    "h": 11
+   }
+  },
+  "item/prato_acaraje": {
+   "frame": {
+    "x": 236,
+    "y": 6,
+    "w": 26,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 11
+   }
+  },
+  "item/dende_garrafa": {
+   "frame": {
+    "x": 263,
+    "y": 1,
+    "w": 12,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 16
+   }
+  },
+  "item/colher_de_pau": {
+   "frame": {
+    "x": 276,
+    "y": 1,
+    "w": 12,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 16
+   }
+  },
+  "item/saquinho_doces": {
+   "frame": {
+    "x": 289,
+    "y": 3,
+    "w": 16,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 14
+   }
+  },
+  "item/folha_bananeira": {
+   "frame": {
+    "x": 306,
+    "y": 7,
+    "w": 30,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 10
+   }
+  },
+  "icone/pedido_caruru": {
+   "frame": {
+    "x": 337,
+    "y": 1,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   }
+  },
+  "icone/pedido_acaraje": {
+   "frame": {
+    "x": 354,
+    "y": 1,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   }
+  }
+ },
+ "meta": {
+  "image": "atlas_props_etapa2.png",
+  "size": {
+   "w": 371,
+   "h": 17
+  },
+  "scale": "1"
+ }
+}
