@@ -510,7 +510,7 @@ class Main extends Phaser.Scene{
   this.hs.push({id:'voltar3',x:0,y:236,w:640,h:34,label:'Sair de trás do balcão',use:()=>this.goView('b0',200,246),prio:2});
   {const bx=this.add.nineslice(W-74,H-25,'ui','ui/slice9_12x12',132,20,4,4,4,4).setOrigin(.5,0).setScrollFactor(0).setDepth(880);
    const bt=this.T(W-74,H-22,'▼  Sair do balcão  (S)',{size:9,bold:true,fixed:true,d:881,ox:.5});
-   this.add_(bx);this.add_(bt);this.exitBtn=[bx,bt]}
+   this.add_(bx);this.add_(bt);this.exitBtn=[bx,bt];bx.setVisible(!!this.hudOn);bt.setVisible(!!this.hudOn)}
   this.fxo.station=true;
  }
  build_rua(){
@@ -721,7 +721,7 @@ Object.assign(Main.prototype,{
   this.buildDialog();this.initBar();this.initGoal();
   this.setHud(false);
  },
- setHud(v){const U=this.ui;[...U.clockBox,U.trayBox,U.money,U.moneyI,U.moneyT,U.ui_,U.bEye.bg,U.bEye.ic,U.bCad.bg,U.bCad.ic,U.chips,...U.tray,...U.slot].forEach(o=>o&&o.setVisible&&o.setVisible(v));this.hudOn=v;if(!v)U.badge.setVisible(false)},
+ setHud(v){const U=this.ui;[...U.clockBox,U.trayBox,U.money,U.moneyI,U.moneyT,U.ui_,U.bEye.bg,U.bEye.ic,U.bCad.bg,U.bCad.ic,U.chips,...U.tray,...U.slot].forEach(o=>o&&o.setVisible&&o.setVisible(v));this.hudOn=v;if(!v)U.badge.setVisible(false);if(this.exitBtn)this.exitBtn.forEach(o=>o.active&&o.setVisible(v&&this.cur==='b3'))},
  makePortraits(){
   const sc=this;const crop=(key,atlas,frame,cx,cy,w,h)=>{const fr=sc.textures.getFrame(atlas,frame);const src=fr.source.image;canvasTex(sc,key,w,h,(c)=>{c.imageSmoothingEnabled=false;c.drawImage(src,fr.cutX+cx,fr.cutY+cy,w,h,0,0,w,h)})};
   crop('por_dandara','dandara','dandara/parado_frente',10,8,28,28);
