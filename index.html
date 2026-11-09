@@ -94,6 +94,7 @@ const WHO={
  ze:{n:'Seu Zé',c:'#B58A5A',fig:'senhora'},
  zefa:{n:'Dona Zefa',c:'#C97A7A',fig:'senhora'},
  nego:{n:'Nego',c:'#7A8A5A',fig:'comerciante'},
+ rita:{n:'Rita',c:'#2E7E78'},
  radio:{n:'Rádio',c:'#F2C14E'}
 };
 
@@ -211,7 +212,7 @@ const EVENTS={
 
 /* tarefas que a vó pede */
 const NARR=[
- {id:'r',h:9.2,L:[['narra','O rádio do balcão chia entre uma música e outra.'],['radio','O governo do Estado anuncia o Programa de Recuperação do Centro Histórico. As obras começam em 1992, pelos quarteirões mais degradados do Maciel, do Passo e do Carmo, perto do Largo do Pelourinho.'],['narra','A vó baixa o volume e volta para a massa.']],c:'prog1x'},
+ {id:'r',h:9.2,L:[['narra','O rádio do balcão chia entre uma música e outra.'],['radio','O governo do Estado anuncia o Programa de Recuperação do Centro Histórico. As obras ficam a cargo da Conder, a companhia de desenvolvimento urbano do Estado, e começam em 1992, pelos quarteirões mais degradados do Maciel, do Passo e do Carmo, perto do Largo do Pelourinho.'],['narra','A vó baixa o volume e volta para a massa.']],c:'prog1x'},
  {id:'v',h:10.6,L:[['narra','Pela janela, Lia vê uma mulher de colete medir a fachada do sobrado com uma trena.'],['narra','Nenhum vizinho foi avisado.']]}
 ];
 
@@ -1191,7 +1192,7 @@ const ASKQ={
  davi:{rua:'O que você escuta na rua, Davi?',casa:'Você mora aqui perto?',ponto:'Você sempre passa na padaria, né, Davi?',papel:'Você viu o aviso colado nas portas?',roda:'A roda é sua, Davi?',programa:'Dizem que o Programa vai pagar a roda. É verdade?',bairro:'Como a roda começou?'},
  vo:{rua:'Vó, a senhora gosta de morar aqui?',casa:'A senhora nunca pensou em sair da casa de cima?',roda:'A senhora escuta a roda daqui de casa?',ponto:'Vó, o ponto da padaria é seu mesmo?',gaveta:'Vó, que envelope é aquele na gaveta?',caderneta:'Vó, o Seu Raimundo deve muito na caderneta?',programa:'A senhora conhece esse Programa, vó?',bairro:'Vó, como o bairro se cuida?'},
  lucia:{rua:'Quantas fachadas ainda faltam medir?',casa:'O que a senhora mede nas casas?',roda:'A roda entra na sua conta?',papel:'Esse aviso nas portas é de vocês?',ponto:'A padaria da minha avó entra na sua lista?',programa:'Vocês fazem parte desse Programa?'}};
-const FIXED_LINES={ze:['Falta um para fechar a mesa.','Esse café já esfriou, mas é nosso.','Dominó não tem pressa.'],zefa:['A lata passa no sábado.','A Rita precisa do remédio dela.','Quem tem, bota. Quem não tem, também senta.'],nego:['Tá pensando em jogar?','Eu ponho a madeira, a rua põe o resto.','Esse tabuleiro é mais velho que eu.']};
+const FIXED_LINES={ze:['Falta um para fechar a mesa.','Esse café já esfriou, mas é nosso.','Dominó não tem pressa.'],zefa:['A lata passa no sábado.','A Rita precisa do remédio dela.','A Rita quer a reforma. Só não quer a goteira.','Quem tem, bota. Quem não tem, também senta.'],nego:['Tá pensando em jogar?','Eu ponho a madeira, a rua põe o resto.','Esse tabuleiro é mais velho que eu.']};
 const EDGES={b0:[['b2','L'],['b1','R'],['rua','porta0'],['b3','cnt']],b1:[['b0','L'],['rua','porta1']],b2:[['b0','R']],b3:[['b0','voltar3']],rua:[['b1','padaria'],['esq','R']],esq:[['rua','L']]};
 function hopTo(from,to){if(from===to)return null;const q=[[from,null]],seen={[from]:1};
  while(q.length){const [v,first]=q.shift();for(const [n,lab] of EDGES[v]||[]){if(seen[n])continue;seen[n]=1;const f=first||lab;if(n===to)return f;q.push([n,f])}}return null}
@@ -1467,6 +1468,13 @@ Q_C.scene=()=>{const used={};
    {t:'A mesa fica, Seu Zé. A gente leva a mesa para onde a rua for.',fn:()=>{F.q0c='mesa'},r:[['ze','Mesa a gente leva. A rua, não.']]},
    {t:'E se tiver que sair, a caixinha sai junto?',fn:()=>{F.q0c='lata'},r:[['ze','Lata não tem endereço, tem gente. Se a gente se espalha, cada um fica com a lata dele, e isso não é caixinha.'],['zefa','Isso é poupança. Poupança é coisa triste.']]},
    {t:'Ficar só olhando a mesa.',fn:()=>{F.q0c='olhou'},r:[['narra','Você olha as pedras de dominó viradas para baixo, como se cada uma guardasse o nome de alguém.']]}]},
+  {lazy:()=>{F.ritaOuviu=1;F.caruruConvite=1;return[
+   ['narra','Rita chega do ateliê com uma sacola de tecido e fica de pé, sem sentar.'],
+   ['rita','Ouvi "reforma vem". Eu quero a reforma, Seu Zé. Faz dois invernos que cai água no meu forro, e conserto de forro ninguém paga com lata.'],
+   ['ze','Querer o telhado inteiro todo mundo quer, Rita. O que eu pergunto é de quem é a conta.'],
+   ['rita','Então que digam a conta. Eu quero ficar e quero o telhado. Não acho que seja pedir demais.'],
+   ['zefa','No dia 27 tem caruru lá em casa, promessa de Cosme e Damião. Quem veio hoje, apareça. Tem lugar na mesa.'],
+   ['lia','Eu aviso a minha avó.']]}},
   ['narra',hh()>=17?'Já escurece quando você levanta. A mesa continua montada. Alguém vai guardar os dominós, alguém vai deixar o café, e ninguém combinou nada.':'Você levanta quando o sol já está baixo na calçada. A mesa continua montada. Alguém vai guardar os dominós, alguém vai deixar o café, e ninguém combinou nada.']]};
 
 /* ===== a casa de Seu Raimundo por dentro ===== */
@@ -2192,7 +2200,7 @@ function herdar(){
  const lucia=lsc>=3?'Ponte':lsc>=1?'Funcionária':'Fechada';
  const caixa=S.fiado>S.money?'Devendo':(S.lost<=2&&S.money>=S.fiado*2)?'Folgado':'Apertado';
  const marcas={q0a:F.q0a||null,q0b:F.q0b||null,q0c:F.q0c||null,lata:F.lata||null,gaveta:!!F.gaveta,sovou:!!F.sovou,fiadoRai:F.fiadoRai||null,fim:F.fim||null,
-  voPressionada:!!F.voPressionada,q:JSON.parse(JSON.stringify(S.q||{})),ev:Object.assign({},S.evDone||{})};
+  voPressionada:!!F.voPressionada,ritaOuviu:!!F.ritaOuviu,caruruConvite:!!F.caruruConvite,q:JSON.parse(JSON.stringify(S.q||{})),ev:Object.assign({},S.evDone||{})};
  const Hh={v:1,th,frentes,saber,vo,dandara,raimundo,davi,lucia,caixa,marcas};
  window.BDV_H=Hh;try{localStorage.setItem('bdv_H',JSON.stringify(Hh))}catch(e){}
  return Hh}
@@ -2984,6 +2992,8 @@ Main.prototype.say=function(lines,done){
   /* Vó: gaveta e conversa final */
   if(F.gaveta)C.push({fez:'Abriu a gaveta do balcão e achou a proposta de locação do ponto: o dobro do valor, uso café.',rua:'A vó viu a gaveta mexida. A confiança dela baixou um ponto.',leva:'Vó: '+Hh.vo+'. '+FR('vo',th.vo)});
   if(F.fim)C.push({fez:F.fim==='juntos'?'Disse à vó: "a gente fica junto, seja o que vier".':'Perguntou à vó se ela está com medo.',rua:F.fim==='juntos'?'Ela respondeu: "juntas, então. Embora junto também tenha prazo".':'Ela respondeu que tem medo desde que se entende. O difícil é escolher de quê.',leva:'Vó: '+Hh.vo+'.'});
+  if(F.ritaOuviu)C.push({fez:'Ouviu Rita dizer, na mesa de dominó, que quer a reforma e quer ficar.',rua:'Ela pediu que digam a conta. Seu Zé respondeu que a pergunta é de quem paga.',leva:'Uma voz a favor da reforma que não é a do Programa.'});
+  if(F.caruruConvite)C.push({fez:'Dona Zefa convidou a mesa para o caruru do dia 27.',rua:'Ninguém combinou quem leva o quê. Todo mundo sabe.',leva:'O caruru de Cosme e Damião abre a Etapa 2.'});
   /* Balcão em números: o que o Programa não conta */
   const ids=Object.keys(notas);
   const quem=ids.map(i=>(NOMES[i]||i)+' '+brlx(notas[i])).join(', ');
