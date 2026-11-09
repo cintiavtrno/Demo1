@@ -2040,11 +2040,9 @@ Main.prototype.showTitle=function(){
  const _mt=Main.prototype.makeTextures;
  Main.prototype.makeTextures=function(){_mt.call(this);
   canvasTex(this,'panel9',20,20,(c)=>{
-   const ring=['#2b170a',GOLD,GOLD2,'#e9d9a8'];
-   ring.forEach((col,i)=>{c.fillStyle=col;c.fillRect(i,i,20-2*i,20-2*i)});
-   c.fillStyle='#f4e9c9';c.fillRect(4,4,12,12);
-   c.fillStyle='#ecdcae';c.fillRect(4,15,12,1);   // sombra de papel na base
-   c.clearRect(0,0,1,1);c.clearRect(19,0,1,1);c.clearRect(0,19,1,1);c.clearRect(19,19,1,1);
+   // papel liso com um fio de tinta (sem moldura dourada nem sombra)
+   c.fillStyle='#2A1A11';c.fillRect(0,0,20,20);
+   c.fillStyle='#F2E5C6';c.fillRect(1,1,18,18);
   });
   const S3=48;
   const ic=(key,fn)=>canvasTex(this,key,S3,S3,(c)=>{c.lineJoin='round';c.lineCap='round';fn(c)});
@@ -2756,7 +2754,7 @@ function carry(done){
  F.frentes={};thr.forEach((x,i)=>F.frentes[Object.keys(THREADS)[i]]=x.lvl);
  const P=[['raimundo','Seu Raimundo'],['dandara','Dandara'],['davi','Davi'],['vo','Vó Aurea'],['lucia','Lúcia']].map(([id,n])=>{const v=tr(id);return`<li><b>${n}</b>: ${v>=3?'confia na Lia':v>=1?'conhece a Lia e conversa':'ainda distante'}</li>`}).join('');
  const ov=el(`<div class="bdv-ov" role="dialog" aria-modal="true" aria-label="O que vai com você"><div class="bdv-card bdv-sum"><div class="k">Fim da fase 1 · 1991</div><h2>O que vai com você para a próxima fase</h2>
-  <h3>As frentes que você abriu</h3>${thr.map(x=>`<div class="t" style="--c:${x.T.c}"><b>${x.T.t}</b> (${x.got} de ${x.all} pistas): ${x.T[x.lvl]}</div>`).join('')}
+  <h3>As frentes que você abriu</h3>${thr.map(x=>`<div class="t" style="--c:${x.T.c}"><b>${x.T.t}</b> (${x.got} de ${x.all} ${x.all===1?'pista':'pistas'}): ${x.T[x.lvl]}</div>`).join('')}
   <h3>O seu mapa</h3>${(F.mapa&&F.mapa.length)?`<ul>${F.mapa.map(t=>`<li>${t}</li>`).join('')}</ul>`:'<p>Nenhuma ligação feita. A Lia vai para a próxima fase com as pistas soltas.</p>'}
   <h3>As pessoas</h3><ul>${P}</ul>
   <p>Na próxima fase, quem confia na Lia conta mais, e as ligações do mapa viram assunto. <b>Jogue de novo</b> e outras escolhas abrem outra rua.</p>
@@ -2995,11 +2993,9 @@ Main.prototype.say=function(lines,done){
  function bloco(){
   const Hh=herdar(),C=cadeias(Hh);
   const nPistas=Object.keys(S.clues).length;
-  const css='display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin:5px 0;font-size:13.5px;line-height:1.35';
-  const cel=(k,t,c)=>`<div style="border-left:4px solid ${c};padding-left:8px"><div style="font:700 11px/1 inherit;letter-spacing:.08em;text-transform:uppercase;color:#8a6a43;margin-bottom:3px">${k}</div>${esc(t)}</div>`;
-  return `<h3>O balcão e a rua</h3><p style="font-size:14px">O que a Lia fez atrás do balcão e o que a rua fez com isso. As contas andam juntas: a prancheta do Programa mede fachadas, a caderneta da vó mede quem confia em quem. ${nPistas?`Hoje saíram ${nPistas} pista${nPistas===1?'':'s'} no caderno, todas de conversa, de atendimento ou de olhar o balcão.`:'Hoje nenhuma pista chegou ao caderno.'}</p>`+
-   C.map(c=>`<div style="${css}">${cel('Você fez',c.fez,'#E3A63C')}${cel('A rua respondeu',c.rua,'#5B8DB8')}${cel('Vai com você',c.leva,'#B9532E')}</div>`).join('')+
-   `<p style="font-size:12.5px;color:#6a4a2a">Na Etapa 1 o efeito aparece aqui e nos avisos durante o dia. O estado de cada pessoa e do caixa fica guardado neste navegador e segue para 1996.</p>`}
+  return `<h3>O balcão e a rua</h3><p>O que a Lia fez atrás do balcão e o que a rua fez com isso. As contas andam juntas: a prancheta do Programa mede fachadas, a caderneta da vó mede quem confia em quem. ${nPistas?`Hoje saíram ${nPistas} pista${nPistas===1?'':'s'} no caderno, todas de conversa, de atendimento ou de olhar o balcão.`:'Hoje nenhuma pista chegou ao caderno.'}</p>`+
+   C.map(c=>`<div class="bdv-cad"><div><span class="l">Você fez</span>${esc(c.fez)}</div><div><span class="l">A rua respondeu</span>${esc(c.rua)}<span class="l t2">Vai com você</span>${esc(c.leva)}</div></div>`).join('')+
+   `<p class="nota">Na Etapa 1 o efeito aparece aqui e nos avisos durante o dia. O estado de cada pessoa e do caixa fica guardado neste navegador e segue para 1996.</p>`}
 
  function inserir(card){
   try{
@@ -3012,5 +3008,72 @@ Main.prototype.say=function(lines,done){
  new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return;const c=n.matches&&n.matches('.bdv-sum')?n:(n.querySelector&&n.querySelector('.bdv-sum'));if(c)inserir(c)}))}).observe(document.body,{childList:true,subtree:true});
  window.__bdvBalcao=bloco;
 })();
+</script>
+<script>
+(function(){const st=document.createElement('style');st.textContent=`
+:root{--band:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAAAkCAYAAADW4ZdwAAAEwElEQVR4Xu3dMU7jQBQG4HiVgoIyEpRUnIErIDgEZWqugUSdAglKSgoQJS0HQEKiomTFlhR0rGYso9iZ2JmNKHbyfU0KcGFr5r0/+GFXZ5fXX6PRaHRysBU+Vvb77U/83fvX7fjpeNcvh/Vj/6gf6qf+oX/KD/KT/Cg/5pAf5Uf5UX6UH+VH+fHf8+OvnKYLAAAAAPxfqqeHizgBCAAAAACUxwQgAAAAABRsnPs/9FePn/FyHO59xE/H5/0Pvutn/dg/6of6qX/on/KD/CQ/Bas+A1F+lB/lR/lRfpQf5Uf5cd38aAIQAAAAAApWvT/fJJ8BOJ29xNOeTfeTp9+8hWtnd5L8ueNdP+vH/lE/1M8U/aN+i6P+KT+kyE/yk/wkP8lP8pP8tEh+lB/l5/W/P5gABAAAAICCjbvn1r3zPHQn2vFtrl/7zr310z/JYP/YP/PUD/UjaCY/1E/1c349DFE/1A/1Q/3UP+rJQf1T/9Q/l09S+/652d8/TQACAAAAQMG+JwC7d0qOTm/jad+dH8fPoTspjm/faXH9rB/7R/1QP/UP/VN+kJ/6J1HkR/kxaCbX5Gf5WX6Wn+Vn+Vl+/rn8bAIQAAAAAAq28BbgVZ8hs+wtPI5f7Rk0rl/6LUbWj/UTDD3Dxv6xf4LuW3TVD/VD/VA/9Y/+Z6Dpn/qn/ik/yE+T1p935Ef5cZPyowlAAAAAACjYwgRgY+iZNcvuIDq+5vr1P/PH+knfgbZ/7B/1Q/3UP/SPoJlk69I/9c+gO8EjP8gP8oP8ID/ID/KD/DSUH00AAgAAAEDBqrPL669wficHW1mn2dyBvn/djsc53vXLYf3UEwz2j/qhfuof+qf+mUP/1D/lB/lJfpQf5Uf5UX6UH3M0+dEEIAAAAAAUrHp6uIgTgAAAAABAeUwAAgAAAEDBxrnPkLh6/IyX43DvI346Pu8ZFK6f9WP/qB/qp/6hf8oP8pP8FKz6DCf5UX6UH+VH+VF+lB/lx3XzowlAAAAAAChY9f58k3wG4HT2Ek97Nt1Pnn7zFpGd3Uny5453/awf+0f9UD9T9I/6Lab6p/yQIj/JT/KT/CQ/yU/y0yL5UX6Un9f//mACEAAAAAAKNu6eW/fO89CdaMe3uX7tO/fWT/8kg/1j/8xTP9SPoJn8UD/Vz/n1MET9UD/UD/VT/6gnB/VP/VP/XD5J7fvnZn//NAEIAAAAAAX7ngDs3ik5Or2Np313fhw/h+6kOL59p8X1s37sH/VD/dQ/9E/5QX7qn0SRH+XHoJlck5/lZ/lZfpaf5Wf5+efyswlAAAAAACjYwluAV32GzLK38Dh+tWfQuH7ptxhZP9ZPMPQMG/vH/gm6b9FVP9QP9UP91D/6n4Gmf+qf+qf8ID9NWn/ekR/lx03KjyYAAQAAAKBgCxOAjaFn1iy7g+j4muvX/8wf6yd9B9r+sX/UD/VT/9A/gmaSrUv/1D+D7gSP/CA/yA/yg/wgP8gP8tNQfjQBCAAAAAAFq84ur7/C+Z0cbGWdZnMH+v51Ox7neNcvh/VTTzDYP+qH+ql/6J/6Zw79U/+UH+Qn+VF+lB/lR/lRfszR5EcTgAAAAABQsOrp4SJOAAIAAAAA5TEBCAAAAAAF+wsuhBJCsB1V6wAAAABJRU5ErkJggg==);--ink:#2A1A11;--paper:#F2E5C6;--terra:#9E4222;--mut:#6A4327;--hair:rgba(42,26,17,.35)}
+/* ---- linguagem de página: papel liso, fio de tinta, faixa de azulejo, texto corrido ---- */
+.bdv-ov{background:rgba(18,10,5,.88)}
+.bdv-card{background-color:var(--paper);background-image:var(--band);background-position:top left;background-size:auto 36px;background-repeat:repeat-x;background-attachment:local;image-rendering:pixelated;border:0;box-shadow:none;max-width:660px;padding:62px 34px 28px;gap:12px}
+.bdv-card>*{image-rendering:auto}
+.bdv-card .k,.bdv-sum h3,.bdv-cad .l{font:400 13px "Pixelify Sans",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--terra)}
+.bdv-card h2{font:700 30px/1.1 DMS,"DM Sans",system-ui,sans-serif;color:var(--ink)}
+.bdv-card p{font-size:16.5px;line-height:1.55}
+.bdv-card b{color:var(--ink)}
+.bdv-card ul{font-size:16px;line-height:1.55}
+.bdv-sum{max-width:780px}
+.bdv-sum h3{margin:20px 0 4px;padding-top:16px;border-top:1px solid var(--hair)}
+.bdv-sum .t{border:0;padding:0;font-size:16px;line-height:1.55}
+.bdv-cad{display:grid;grid-template-columns:1fr 1fr;gap:6px 32px;padding:14px 0;border-top:1px solid rgba(42,26,17,.2);font-size:15.5px;line-height:1.5}
+.bdv-cad:first-of-type{border-top:0}
+.bdv-cad .l{display:block;font-size:11.5px;color:var(--mut);margin:0 0 3px}
+.bdv-cad .l.t2{color:var(--terra);margin-top:10px}
+.bdv-sum .nota{font-size:14px;color:var(--mut)}
+@media (max-width:640px){.bdv-cad{grid-template-columns:1fr}}
+.bdv-btn{background:none;color:var(--ink);border:0;border-bottom:2px solid var(--ink);padding:4px 0;font-size:16px;box-shadow:none}
+.bdv-btn::after{content:" \\2192"}
+.bdv-btn.alt::after,.bdv-ghost::after{content:""}
+.bdv-ghost{background:none!important;border:0!important;border-bottom:2px solid var(--hair)!important;color:var(--mut)!important}
+.bdv-btn:hover{color:var(--terra);border-color:var(--terra)}
+.bdv-dots i{border:1px solid var(--ink);width:8px;height:8px}.bdv-dots i.on{background:var(--terra)}
+.bdv-lupa{border:0;box-shadow:0 0 0 1px var(--ink);background:var(--paper);padding:8px}
+.bdv-lupa span{font:400 12px "Pixelify Sans",monospace;color:var(--terra);letter-spacing:.14em}
+/* mapa: folha de papel entre duas faixas de azulejo */
+.bdv-map{background:#1C110A}
+.bdv-map::before,.bdv-map::after{content:"";height:36px;flex:none;background:var(--paper) var(--band) center/auto 36px repeat-x;image-rendering:pixelated}
+.bdv-board{margin:0;border:0;background:var(--paper)}
+.bdv-board svg path{stroke:var(--terra)!important;stroke-width:2!important}
+.bdv-board svg circle{fill:var(--ink)!important;r:4}
+.bdv-mc{rotate:0deg!important;background:none;border:0;border-top:1px solid rgba(42,26,17,.55);box-shadow:none;padding:8px 10px 10px;color:var(--ink);font-size:14px;line-height:1.4}
+.bdv-mc em{font:400 11.5px "Pixelify Sans",monospace;letter-spacing:.14em;color:var(--mut)}
+.bdv-mc em::before{content:"";display:inline-block;width:8px;height:8px;background:var(--c,#b8a77a);margin-right:6px}
+.bdv-mc b{font-size:15px;color:var(--ink)}
+.bdv-mc.sel{outline:0;background:rgba(227,166,60,.32)}
+.bdv-mc.cand{outline:0;border-top:2px dashed var(--terra);background:rgba(227,166,60,.18)}
+.bdv-mc.linked{box-shadow:none}.bdv-mc.linked em::after{content:" \\00b7  ligado";color:var(--terra)}
+.bdv-mc .hint{border-top:0;margin-top:4px;padding-top:0;color:var(--terra);font-size:12.5px}
+.bdv-mc .hint.solta{color:var(--mut)}
+.bdv-conc{background:var(--paper);border:0;box-shadow:none;rotate:0deg;color:var(--terra);font-size:13px;font-style:italic;padding:1px 6px}
+.bdv-mbar{background:var(--paper);border-top:1px solid var(--hair);color:var(--ink);padding:12px 24px;font-size:14.5px}
+.bdv-msg{background:var(--ink);color:var(--paper);border:0}
+/* caderno */
+.nb{filter:none}
+.nb::before{content:"";height:36px;flex:none;background:var(--paper) var(--band) center/auto 36px repeat-x;image-rendering:pixelated}
+.nb-tabs{padding:8px 0 0 14px;gap:20px;background:var(--paper)}
+.nb-tabs button,.nb-tabs button:nth-child(n){background:none;border:0;border-bottom:2px solid transparent;top:0;padding:4px 2px 5px;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.nb-tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.nb-tabs small{background:none;color:var(--terra);padding:0}
+.nb-page{border:0;border-left:0;box-shadow:none}
+.nb-page::before{display:none}
+.nb-x{background:none;color:var(--ink);box-shadow:none;font-size:22px}
+.nb-x:hover,.nb-x:focus-visible{background:none;color:var(--terra);outline:2px solid var(--terra)}
+.nb-go{background:none;color:var(--ink);border:0;border-bottom:2px solid var(--ink);box-shadow:none;padding:0 0 1px}
+.nb-go:hover,.nb-go:focus-visible{background:none;color:var(--terra);border-color:var(--terra)}
+.nb-ph{border:1px solid var(--ink);transform:none;box-shadow:none}
+.nb-planta img{border:1px solid var(--ink)}
+.nb-item b{text-decoration-thickness:1px;text-decoration-color:var(--ink)}
+.nb-bars i{border:1px solid var(--ink)}
+.nb-foot{border-top:1px solid var(--hair)}
+`;document.head.appendChild(st)})();
 </script>
 </body></html>
